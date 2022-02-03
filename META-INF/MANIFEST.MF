@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hwsimcoupling
+Bundle-SymbolicName: org.palladiosimulator.hwsimcoupling
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.hwsimcoupling
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.palladiosimulator.hwsimcoupling.commands,
+ org.palladiosimulator.hwsimcoupling.consumers,
+ org.palladiosimulator.hwsimcoupling.exceptions,
+ org.palladiosimulator.hwsimcoupling.util,
+ org.palladiosimulator.hwsimcoupling.util.impl
