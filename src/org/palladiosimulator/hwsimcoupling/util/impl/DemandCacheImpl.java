@@ -9,6 +9,7 @@ import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
 import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
+import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 import org.palladiosimulator.hwsimcoupling.exceptions.MissingParameterException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
@@ -20,12 +21,12 @@ public class DemandCacheImpl {
 	private CommandHandler commandHandler;
 	
 	public DemandCacheImpl(CommandHandler commandHandler) {
-		demands = new HashMap<String, Double>();
+		this.demands = new HashMap<String, Double>();
 		this.commandHandler = commandHandler;
-		fileManager = new FileManagerImpl(commandHandler);
+		this.fileManager = new FileManagerImpl(commandHandler);
 	}
 	
-	public double get(Map<String, Serializable> parameterMap) {
+	public double get(Map<String, Serializable> parameterMap) {	
 		String executable = get_required_value_from_map(parameterMap, "executable");
 		String system = get_required_value_from_map(parameterMap, "system");
 		String methodname = get_required_value_from_map(parameterMap, "methodname");
@@ -36,7 +37,8 @@ public class DemandCacheImpl {
 		
 		if(!demands.containsKey(key)) {
 			try {
-				String[] paths = fileManager.sync_files(new String[] {system, executable});
+				System.out.println("Evaluating demand for: " + key + ".");
+				String[] paths = fileManager.copy_files(new String[] {system, executable});
 				system = paths[0];
 				executable = paths[1];
 				double demand = simulate(system, executable, methodname, parameters);
@@ -63,12 +65,13 @@ public class DemandCacheImpl {
 		
 		OutputConsumer demandExtractor = commandHandler.getOutputConsumer();
 		ErrorConsumer errorDetector = commandHandler.getErrorConsumer();
+		VoidConsumer voidConsumer = new VoidConsumer();
 		
 		SimulationCommand simulationCommand = commandHandler.getSimulationCommand(system, executable, methodname, parameters);
 		ExtractionCommand extractionCommand = commandHandler.getExtractionCommand(methodname);
 		
-		CommandExecutor.execute_command(simulationCommand.get_command(), demandExtractor, errorDetector);
-		CommandExecutor.execute_command(extractionCommand.get_command(), demandExtractor, errorDetector);
+		CommandExecutor.execute_command(simulationCommand, voidConsumer, errorDetector);
+		CommandExecutor.execute_command(extractionCommand, demandExtractor, errorDetector);
 		
 		return demandExtractor.get_demand();
 	}

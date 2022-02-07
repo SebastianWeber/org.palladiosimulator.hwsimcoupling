@@ -9,22 +9,33 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+import org.palladiosimulator.hwsimcoupling.commands.Command;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 
+/**
+ * @author Sebastian
+ * Executes {@link org.palladiosimulator.hwsimcoupling.commands.Command}
+ */
 public class CommandExecutor {
 
-	public static void execute_command(List<String> command, Consumer<String> outputConsumer, Consumer<String> errorConsumer) throws IOException, InterruptedException {
+	/**
+	 * Executes the given {@link org.palladiosimulator.hwsimcoupling.commands.Command} 
+	 * and connects the output and error streams to the given consumers
+	 * @param command
+	 * @param outputConsumer
+	 * @param errorConsumer
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static void execute_command(Command command, Consumer<String> outputConsumer, Consumer<String> errorConsumer) throws IOException, InterruptedException {
 		ProcessBuilder builder = new ProcessBuilder();
-		builder.command(command);
+		builder.command(command.get_command());
 		Process process = builder.start();
 		
 		try {
 			CompletableFuture.runAsync(new StreamGobbler(process.getInputStream(), outputConsumer)).get();
 			CompletableFuture.runAsync(new StreamGobbler(process.getErrorStream(), errorConsumer)).get();
 		} catch (InterruptedException | ExecutionException e) {
-			for (StackTraceElement s : e.getStackTrace()) {
-				System.out.println(s);
-			}
 			throw new DemandCalculationFailureException(e.getMessage());
 		}
 		int exitCode = process.waitFor();
