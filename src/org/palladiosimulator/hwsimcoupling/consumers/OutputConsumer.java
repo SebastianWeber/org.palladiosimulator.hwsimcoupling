@@ -12,6 +12,6 @@ public interface OutputConsumer extends Consumer<String>{
 	/**
 	 * @return the value of the demand found in the stream
 	 */
-	public double get_demand();
+	public String get_demand();
 	
 }

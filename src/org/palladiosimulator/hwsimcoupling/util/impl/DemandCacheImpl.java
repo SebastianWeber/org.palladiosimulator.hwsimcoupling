@@ -13,20 +13,31 @@ import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 import org.palladiosimulator.hwsimcoupling.exceptions.MissingParameterException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
+import org.palladiosimulator.hwsimcoupling.util.DemandCache;
 import org.palladiosimulator.hwsimcoupling.util.FileManager;
 
-public class DemandCacheImpl {
-	private HashMap<String, Double> demands;
-	private FileManager fileManager;
-	private CommandHandler commandHandler;
+public class DemandCacheImpl implements DemandCache{
 	
-	public DemandCacheImpl(CommandHandler commandHandler) {
-		this.demands = new HashMap<String, Double>();
+	private static DemandCacheImpl INSTANCE;
+	
+	private DemandCacheImpl(CommandHandler commandHandler) {
+		this.demands = new HashMap<String, String>();
 		this.commandHandler = commandHandler;
 		this.fileManager = new FileManagerImpl(commandHandler);
 	}
 	
-	public double get(Map<String, Serializable> parameterMap) {	
+	private HashMap<String, String> demands;
+	private FileManager fileManager;
+	private CommandHandler commandHandler;
+	
+	public static DemandCacheImpl getDemandCacheImpl(CommandHandler commandHandler) {
+		if (INSTANCE == null) {
+			INSTANCE = new DemandCacheImpl(commandHandler);
+		}
+		return INSTANCE;
+	}
+	
+	public double get(Map<String, Serializable> parameterMap, RESOURCE resource) {	
 		String executable = get_required_value_from_map(parameterMap, "executable");
 		String system = get_required_value_from_map(parameterMap, "system");
 		String methodname = get_required_value_from_map(parameterMap, "methodname");
@@ -41,15 +52,24 @@ public class DemandCacheImpl {
 				String[] paths = fileManager.copy_files(new String[] {system, executable});
 				system = paths[0];
 				executable = paths[1];
-				double demand = simulate(system, executable, methodname, parameters);
+				String demand = simulate(system, executable, methodname, parameters);
 				demands.put(key, demand);
-				return demand/processingrate;
+				return get(demand, resource)/processingrate;
 			} catch (IOException | InterruptedException e) {
 				throw new DemandCalculationFailureException("Failed to evaluate demand: " + e.getMessage());
 			}
 		} else {
-			return demands.get(key)/processingrate;
+			return get(demands.get(key), resource)/processingrate;
 		}
+	}
+	
+	private double get(String demands, RESOURCE resource) {
+		for (String demand : demands.split(";")) {
+			if (demand.strip().startsWith(resource.toString())) {
+				return Double.parseDouble(demand.strip().replace(resource.toString(), "").strip());
+			}
+		}
+		throw new DemandCalculationFailureException("Failed to evaluate demand.");
 	}
 	
 	private String get_required_value_from_map(Map<String, Serializable> map, String key) {
@@ -61,7 +81,7 @@ public class DemandCacheImpl {
 		
 	}
 	
-	private double simulate(String system, String executable, String methodname, String parameters) throws IOException, InterruptedException {
+	private String simulate(String system, String executable, String methodname, String parameters) throws IOException, InterruptedException {
 		
 		OutputConsumer demandExtractor = commandHandler.getOutputConsumer();
 		ErrorConsumer errorDetector = commandHandler.getErrorConsumer();
