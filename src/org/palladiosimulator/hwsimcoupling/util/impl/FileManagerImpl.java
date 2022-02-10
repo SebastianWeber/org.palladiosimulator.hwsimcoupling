@@ -1,6 +1,11 @@
 package org.palladiosimulator.hwsimcoupling.util.impl;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.palladiosimulator.hwsimcoupling.commands.CopyCommand;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
@@ -15,47 +20,32 @@ public class FileManagerImpl implements FileManager {
 		this.commandHandler = commandHandler;
 	}
 	
-	public String copy_file(String path) {
-		if (path.startsWith(LOCATIONS.MANUAL.toString())) {
-			return strip_path(path);
-		} else if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
-			try {
-				CopyCommand copyCommand = commandHandler.getCopyCommand(strip_path(path));
-				CommandExecutor.execute_command(copyCommand, commandHandler.getOutputConsumer(), commandHandler.getErrorConsumer());
-				return copyCommand.get_destination();
-			} catch (IOException | InterruptedException e) {
-				throw new DemandCalculationFailureException("Failed to copy file " + path + ": " + e.getMessage());
+	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair) {
+		String paths = pair.getValue().toString();
+		String stripped_paths = "";
+		for (String path : paths.split(" ")) {
+			if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
+				stripped_paths += copy_absolute(parameterMap, path);
+			} else if (path.startsWith(LOCATIONS.LOCAL.toString())) {
+				stripped_paths += copy_local(parameterMap, path);
+			} else {
+				stripped_paths += path;
 			}
-		} else if (path.startsWith(LOCATIONS.LOCAL.toString())) {
-			try {
-				String stripped_path = strip_path(path);
-				String project_name = stripped_path.split("/")[0];
-				String project_path = ResourcesPlugin.getWorkspace().getRoot().getProject(project_name).getLocation().toString();
-				String source_path = stripped_path.replace(project_name, project_path);
-				CopyCommand copyCommand = commandHandler.getCopyCommand(source_path);
-				CommandExecutor.execute_command(copyCommand, commandHandler.getOutputConsumer(), commandHandler.getErrorConsumer());
-				return copyCommand.get_destination();
-			} catch (IOException | InterruptedException e) {
-				throw new DemandCalculationFailureException("Failed to copy file " + path + ": " + e.getMessage());
-			}
-		} else {
-			throw new DemandCalculationFailureException("File location of " + path + " is unknown. Please use " + LOCATIONS.get_locations_string() + ".");
 		}
+		return stripped_paths;
 	}
 	
-	public String[] copy_files(String[] paths) {
-		String[] paths_return = new String[paths.length];
-		for (int i = 0; i < paths.length; i++) {
-			paths_return[i] = copy_file(paths[i]);
-		}
-		return paths_return;
+	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap) {
+		Map<String, Serializable> stripped_parameter_map = new HashMap<String, Serializable>();
+		for (Entry<String,Serializable> pair : parameterMap.entrySet()){
+			stripped_parameter_map.put(pair.getKey(), copy_file(parameterMap, pair));
+	    }
+		return stripped_parameter_map;
 	}
 	
-	public String strip_path(String path) {
+	private String strip_path(String path) {
 		if (path.startsWith(LOCATIONS.LOCAL.toString())) {
 			return path.replaceFirst(LOCATIONS.LOCAL.toString(), "");
-		} else if (path.startsWith(LOCATIONS.MANUAL.toString())) {
-			return path.replaceFirst(LOCATIONS.MANUAL.toString(), "");
 		} else if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
 			return path.replaceFirst(LOCATIONS.ABSOLUTE.toString(), "");
 		} else {
@@ -63,6 +53,28 @@ public class FileManagerImpl implements FileManager {
 		}
 	}
 	
-
+	private String copy_local(Map<String, Serializable> parameterMap, String path) {
+		try {
+			String stripped_path = strip_path(path);
+			String project_name = stripped_path.split("/")[0];
+			String project_path = ResourcesPlugin.getWorkspace().getRoot().getProject(project_name).getLocation().toString();
+			String source_path = stripped_path.replace(project_name, project_path);
+			CopyCommand copyCommand = commandHandler.getCopyCommand(parameterMap, source_path);
+			CommandExecutor.execute_command(copyCommand, commandHandler.getOutputConsumer(), commandHandler.getErrorConsumer());
+			return copyCommand.get_destination();
+		} catch (IOException | InterruptedException e) {
+			throw new DemandCalculationFailureException("Failed to copy file " + path + ": " + e.getMessage());
+		}
+	}
+	
+	private String copy_absolute(Map<String, Serializable> parameterMap, String path) {
+		try {
+			CopyCommand copyCommand = commandHandler.getCopyCommand(parameterMap, strip_path(path));
+			CommandExecutor.execute_command(copyCommand, commandHandler.getOutputConsumer(), commandHandler.getErrorConsumer());
+			return copyCommand.get_destination();
+		} catch (IOException | InterruptedException e) {
+			throw new DemandCalculationFailureException("Failed to copy file " + path + ": " + e.getMessage());
+		}
+	}
 
 }

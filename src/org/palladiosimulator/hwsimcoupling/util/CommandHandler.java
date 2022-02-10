@@ -1,5 +1,8 @@
 package org.palladiosimulator.hwsimcoupling.util;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.palladiosimulator.hwsimcoupling.commands.CopyCommand;
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
@@ -13,25 +16,22 @@ import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
 public interface CommandHandler {
 
 	/**
-	 * @param source_path
+	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.CopyCommand} 
 	 */
-	public CopyCommand getCopyCommand(String source_path);
+	public CopyCommand getCopyCommand(Map<String, Serializable> parameterMap, String source_path);
 	
 	/**
-	 * @param methodname
+	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand} 
 	 */
-	public ExtractionCommand getExtractionCommand(String methodname);
+	public ExtractionCommand getExtractionCommand(Map<String, Serializable> parameterMap);
 	
 	/**
-	 * @param system 
-	 * @param executable
-	 * @param methodname
-	 * @param parameters
+	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.SimulationCommand} 
 	 */
-	public SimulationCommand getSimulationCommand(String system, String executable, String methodname, String parameters);
+	public SimulationCommand getSimulationCommand(Map<String, Serializable> parameterMap);
 	
 	/**
 	 * @return {@link org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer}

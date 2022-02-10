@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -28,6 +27,9 @@ public class CommandExecutor {
 	 * @throws InterruptedException
 	 */
 	public static void execute_command(Command command, Consumer<String> outputConsumer, Consumer<String> errorConsumer) throws IOException, InterruptedException {
+		System.out.print("Executing command: ");
+		command.get_command().forEach(x -> System.out.print(x + " "));
+		System.out.println("");
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command(command.get_command());
 		Process process = builder.start();

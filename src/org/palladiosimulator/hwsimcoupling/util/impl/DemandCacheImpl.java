@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
 import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
-import org.palladiosimulator.hwsimcoupling.exceptions.MissingParameterException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache;
 import org.palladiosimulator.hwsimcoupling.util.FileManager;
+import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 
 public class DemandCacheImpl implements DemandCache{
 	
@@ -37,24 +36,23 @@ public class DemandCacheImpl implements DemandCache{
 		return INSTANCE;
 	}
 	
-	public double get(Map<String, Serializable> parameterMap, RESOURCE resource) {	
-		String executable = get_required_value_from_map(parameterMap, "executable");
-		String system = get_required_value_from_map(parameterMap, "system");
-		String methodname = get_required_value_from_map(parameterMap, "methodname");
-		String parameters = get_required_value_from_map(parameterMap, "parameter");
-		long processingrate = Long.parseLong(get_required_value_from_map(parameterMap, "processingrate"));
-		
-		String key = system + " " + executable + " " + methodname + " " + parameters;
+	public double get(Map<String, Serializable> parameterMap, RESOURCE resource) {
+		String key = MapHelper.get_map_as_one_string(parameterMap);
+		long processingrate = Long.parseLong(MapHelper.get_required_value_from_map(parameterMap, "processingrate"));
 		
 		if(!demands.containsKey(key)) {
 			try {
-				System.out.println("Evaluating demand for: " + key + ".");
-				String[] paths = fileManager.copy_files(new String[] {system, executable});
-				system = paths[0];
-				executable = paths[1];
-				String demand = simulate(system, executable, methodname, parameters);
-				demands.put(key, demand);
-				return get(demand, resource)/processingrate;
+				System.out.println("Evaluating demand for key: " + key);
+				parameterMap = fileManager.copy_files(parameterMap);
+				String demand = simulate(parameterMap);
+				if (demand != null) {
+					demands.put(key, demand);
+					System.out.println("Evaluated demand: " + demand + " for key: " + key);
+					return get(demand, resource)/processingrate;
+				} else {
+					throw new DemandCalculationFailureException("Failed to evaluate demand. Please check the executed commands for errors.");
+				}
+				
 			} catch (IOException | InterruptedException e) {
 				throw new DemandCalculationFailureException("Failed to evaluate demand: " + e.getMessage());
 			}
@@ -72,23 +70,15 @@ public class DemandCacheImpl implements DemandCache{
 		throw new DemandCalculationFailureException("Failed to evaluate demand.");
 	}
 	
-	private String get_required_value_from_map(Map<String, Serializable> map, String key) {
-		if (map.get(key) != null) {
-			return String.valueOf(map.get(key)).replaceAll("\"", "");
-		} else {
-			throw new MissingParameterException("The required parameter " + key + " is missing.");
-		}
-		
-	}
 	
-	private String simulate(String system, String executable, String methodname, String parameters) throws IOException, InterruptedException {
+	private String simulate(Map<String, Serializable> parameterMap) throws IOException, InterruptedException {
 		
 		OutputConsumer demandExtractor = commandHandler.getOutputConsumer();
 		ErrorConsumer errorDetector = commandHandler.getErrorConsumer();
 		VoidConsumer voidConsumer = new VoidConsumer();
 		
-		SimulationCommand simulationCommand = commandHandler.getSimulationCommand(system, executable, methodname, parameters);
-		ExtractionCommand extractionCommand = commandHandler.getExtractionCommand(methodname);
+		SimulationCommand simulationCommand = commandHandler.getSimulationCommand(parameterMap);
+		ExtractionCommand extractionCommand = commandHandler.getExtractionCommand(parameterMap);
 		
 		CommandExecutor.execute_command(simulationCommand, voidConsumer, errorDetector);
 		CommandExecutor.execute_command(extractionCommand, demandExtractor, errorDetector);

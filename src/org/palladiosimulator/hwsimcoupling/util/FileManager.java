@@ -1,39 +1,28 @@
 package org.palladiosimulator.hwsimcoupling.util;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * @author Sebastian
  * Copies one or multiple files to a container
  */
 public interface FileManager {
 
-	/**
-	 * @param source_path
-	 * @return the destination path of the given source_path
-	 */
-	public String copy_file(String source_path);
+	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair);
 	
-	/**
-	 * @param source_paths
-	 * @return the destination paths of the given source_paths
-	 */
-	public String[] copy_files(String[] source_paths);
-	
-	/**
-	 * @param path
-	 * @return the path stripped from the keywords of {@link LOCATIONS}
-	 */
-	public String strip_path(String path);
+	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap);
 	
 	/**
 	 * @author Sebastian
 	 * Paths processed by the {@link FileManager} are prefixed by
 	 * "local:" means the path is relative to a project root with which it begins
 	 * "absolute:" means the path is absolute, i.e. /home/user/... or C:/User/...
-	 * "manual:" means the path is managed manually and wont be adapted besides {@link FileManager#strip_path(String)}
 	 */
 	public enum LOCATIONS {
 		
-		LOCAL("local:"), ABSOLUTE("absolute:"), MANUAL("manual:");
+		LOCAL("local:"), ABSOLUTE("absolute:");
 		
 		private final String keyword;
 		
@@ -46,7 +35,7 @@ public interface FileManager {
 		}
 		
 		public static String get_locations_string() {
-			return "\"" + LOCATIONS.ABSOLUTE.toString() + "\" or \"" + LOCATIONS.LOCAL.toString() + "\" or \"" + LOCATIONS.MANUAL.toString() + "\"";
+			return "\"" + LOCATIONS.ABSOLUTE.toString() + "\" or \"" + LOCATIONS.LOCAL.toString() + "\"";
 		}
 		
 	}
