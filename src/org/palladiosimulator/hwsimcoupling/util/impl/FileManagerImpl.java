@@ -14,20 +14,17 @@ import org.palladiosimulator.hwsimcoupling.util.FileManager;
 
 public class FileManagerImpl implements FileManager {
 
-	private CommandHandler commandHandler;
-	
-	public FileManagerImpl(CommandHandler commandHandler) {
-		this.commandHandler = commandHandler;
+	public FileManagerImpl() {
 	}
 	
-	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair) {
+	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair, CommandHandler commandHandler) {
 		String paths = pair.getValue().toString();
 		String stripped_paths = "";
 		for (String path : paths.split(" ")) {
 			if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
-				stripped_paths += copy_absolute(parameterMap, path);
+				stripped_paths += copy_absolute(parameterMap, path, commandHandler);
 			} else if (path.startsWith(LOCATIONS.LOCAL.toString())) {
-				stripped_paths += copy_local(parameterMap, path);
+				stripped_paths += copy_local(parameterMap, path, commandHandler);
 			} else {
 				stripped_paths += path;
 			}
@@ -35,10 +32,10 @@ public class FileManagerImpl implements FileManager {
 		return stripped_paths;
 	}
 	
-	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap) {
+	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap, CommandHandler commandHandler) {
 		Map<String, Serializable> stripped_parameter_map = new HashMap<String, Serializable>();
 		for (Entry<String,Serializable> pair : parameterMap.entrySet()){
-			stripped_parameter_map.put(pair.getKey(), copy_file(parameterMap, pair));
+			stripped_parameter_map.put(pair.getKey(), copy_file(parameterMap, pair, commandHandler));
 	    }
 		return stripped_parameter_map;
 	}
@@ -53,7 +50,7 @@ public class FileManagerImpl implements FileManager {
 		}
 	}
 	
-	private String copy_local(Map<String, Serializable> parameterMap, String path) {
+	private String copy_local(Map<String, Serializable> parameterMap, String path, CommandHandler commandHandler) {
 		try {
 			String stripped_path = strip_path(path);
 			String project_name = stripped_path.split("/")[0];
@@ -67,7 +64,7 @@ public class FileManagerImpl implements FileManager {
 		}
 	}
 	
-	private String copy_absolute(Map<String, Serializable> parameterMap, String path) {
+	private String copy_absolute(Map<String, Serializable> parameterMap, String path, CommandHandler commandHandler) {
 		try {
 			CopyCommand copyCommand = commandHandler.getCopyCommand(parameterMap, strip_path(path));
 			CommandExecutor.execute_command(copyCommand, commandHandler.getOutputConsumer(), commandHandler.getErrorConsumer());

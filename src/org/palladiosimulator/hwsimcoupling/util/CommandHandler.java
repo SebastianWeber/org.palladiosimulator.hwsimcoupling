@@ -13,34 +13,34 @@ import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
  * @author Sebastian
  * Encapsulates the commands from one coupling
  */
-public interface CommandHandler {
+public abstract class CommandHandler {
 
 	/**
 	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.CopyCommand} 
 	 */
-	public CopyCommand getCopyCommand(Map<String, Serializable> parameterMap, String source_path);
+	public abstract CopyCommand getCopyCommand(Map<String, Serializable> parameterMap, String source_path);
 	
 	/**
 	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand} 
 	 */
-	public ExtractionCommand getExtractionCommand(Map<String, Serializable> parameterMap);
+	public abstract ExtractionCommand getExtractionCommand(Map<String, Serializable> parameterMap);
 	
 	/**
 	 * @param parameterMap
 	 * @return {@link org.palladiosimulator.hwsimcoupling.commands.SimulationCommand} 
 	 */
-	public SimulationCommand getSimulationCommand(Map<String, Serializable> parameterMap);
+	public abstract SimulationCommand getSimulationCommand(Map<String, Serializable> parameterMap);
 	
 	/**
 	 * @return {@link org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer}
 	 */
-	public OutputConsumer getOutputConsumer();
+	public abstract OutputConsumer getOutputConsumer();
 	
 	/**
 	 * @return {@link org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer}
 	 */
-	public ErrorConsumer getErrorConsumer();
+	public abstract ErrorConsumer getErrorConsumer();
 	
 }

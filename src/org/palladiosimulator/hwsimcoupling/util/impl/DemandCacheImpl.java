@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
+import org.palladiosimulator.hwsimcoupling.configuration.HWsimCouplingManager;
 import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
@@ -17,34 +18,24 @@ import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 
 public class DemandCacheImpl implements DemandCache{
 	
-	private static DemandCacheImpl INSTANCE;
-	
-	private DemandCacheImpl(CommandHandler commandHandler) {
+	public DemandCacheImpl() {
 		this.demands = new HashMap<String, String>();
-		this.commandHandler = commandHandler;
-		this.fileManager = new FileManagerImpl(commandHandler);
+		this.fileManager = new FileManagerImpl();
 	}
 	
 	private HashMap<String, String> demands;
 	private FileManager fileManager;
-	private CommandHandler commandHandler;
 	
-	public static DemandCacheImpl getDemandCacheImpl(CommandHandler commandHandler) {
-		if (INSTANCE == null) {
-			INSTANCE = new DemandCacheImpl(commandHandler);
-		}
-		return INSTANCE;
-	}
-	
-	public double get(Map<String, Serializable> parameterMap, RESOURCE resource) {
+	public double get(Map<String, Serializable> parameterMap, RESOURCE resource, CommandHandler commandHandler) {
+		parameterMap = HWsimCouplingManager.mergeParameterMapWithProfile(parameterMap, MapHelper.get_required_value_from_map(parameterMap, "hwsim"));
 		String key = MapHelper.get_map_as_one_string(parameterMap);
 		long processingrate = Long.parseLong(MapHelper.get_required_value_from_map(parameterMap, "processingrate"));
 		
 		if(!demands.containsKey(key)) {
 			try {
 				System.out.println("Evaluating demand for key: " + key);
-				parameterMap = fileManager.copy_files(parameterMap);
-				String demand = simulate(parameterMap);
+				parameterMap = fileManager.copy_files(parameterMap, commandHandler);
+				String demand = simulate(parameterMap, commandHandler);
 				if (demand != null) {
 					demands.put(key, demand);
 					System.out.println("Evaluated demand: " + demand + " for key: " + key);
@@ -71,7 +62,7 @@ public class DemandCacheImpl implements DemandCache{
 	}
 	
 	
-	private String simulate(Map<String, Serializable> parameterMap) throws IOException, InterruptedException {
+	private String simulate(Map<String, Serializable> parameterMap, CommandHandler commandHandler) throws IOException, InterruptedException {
 		
 		OutputConsumer demandExtractor = commandHandler.getOutputConsumer();
 		ErrorConsumer errorDetector = commandHandler.getErrorConsumer();

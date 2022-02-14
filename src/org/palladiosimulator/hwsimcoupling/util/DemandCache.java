@@ -13,7 +13,7 @@ public interface DemandCache {
 	 * @param parameterMap
 	 * @return the stored or calculated demand resulting from the given parameterMap
 	 */
-	public double get(Map<String, Serializable> parameterMap, RESOURCE resource);
+	public double get(Map<String, Serializable> parameterMap, RESOURCE resource, CommandHandler commandHandler);
 	
 	/**
 	 * @author Sebastian

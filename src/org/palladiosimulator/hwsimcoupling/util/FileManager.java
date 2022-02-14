@@ -10,9 +10,9 @@ import java.util.Map.Entry;
  */
 public interface FileManager {
 
-	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair);
+	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair, CommandHandler commandHandler);
 	
-	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap);
+	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap, CommandHandler commandHandler);
 	
 	/**
 	 * @author Sebastian

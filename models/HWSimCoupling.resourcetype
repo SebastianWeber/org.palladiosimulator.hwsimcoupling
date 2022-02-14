@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resourcetype:ResourceRepository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:resourcetype="http://palladiosimulator.org/PalladioComponentModel/ResourceType/5.2">
+  <resourceInterfaces__ResourceRepository id="HWSimCouplingCPUInterface" entityName="HWSimCouplingCPUInterface">
+    <resourceSignatures__ResourceInterface id="HWSimCouplingCPUSignature" entityName="HWSimCouplingCPUSignature">
+      <parameter__ResourceSignature parameterName="profile">
+        <dataType__Parameter xsi:type="repository:PrimitiveDataType" href="pathmap://PCM_MODELS/PrimitiveTypes.repository#//@dataTypes__Repository.1"/>
+      </parameter__ResourceSignature>
+      <parameter__ResourceSignature parameterName="hwsim">
+        <dataType__Parameter xsi:type="repository:PrimitiveDataType" href="pathmap://PCM_MODELS/PrimitiveTypes.repository#//@dataTypes__Repository.1"/>
+      </parameter__ResourceSignature>
+    </resourceSignatures__ResourceInterface>
+  </resourceInterfaces__ResourceRepository>
+  <schedulingPolicies__ResourceRepository id="org.palladiosimulator.hwsimcoupling.scheduler.ProcessorSharing" entityName="HWSimSchedulerProcessorSharing"/>
+  <schedulingPolicies__ResourceRepository id="org.palladiosimulator.hwsimcoupling.scheduler.Delay" entityName="HWSimSchedulerDelay"/>
+  <schedulingPolicies__ResourceRepository id="org.palladiosimulator.hwsimcoupling.scheduler.FCFS" entityName="HWSimSchedulerFCFS"/>
+  <availableResourceTypes_ResourceRepository xsi:type="resourcetype:ProcessingResourceType" id="HWSimCouplingCPU" entityName="HWSimCouplingCPU">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="HWSimCouplingCPUProvidedRole" entityName="HWSimCouplingCPUProvidedRole" providedResourceInterface__ResourceProvidedRole="HWSimCouplingCPUInterface"/>
+  </availableResourceTypes_ResourceRepository>
+</resourcetype:ResourceRepository>

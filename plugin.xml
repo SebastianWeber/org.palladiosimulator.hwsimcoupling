@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="hwsim" name="HWSim" schema="schema/hwsim.exsd"/>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.OpenManagerHandler"
+            id="org.palladiosimulator.hwsimcoupling.openManager"
+            name="Open Manager">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               label="HWSimCoupling">
+            <command
+                  commandId="org.palladiosimulator.hwsimcoupling.openManager"
+                  label="Open Manager"
+                  style="push"
+                  tooltip="Open the manager to configure additional parameters">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.uri_mapping">
+      <mapping
+            source="pathmap://HWSIM_SCHEDULER_MODELS/"
+            target="platform:/plugin/org.palladiosimulator.hwsimcoupling/models/">
+      </mapping>
+   </extension>
+   <extension
+         id="org.palladiosimulator.hwsimcoupling.scheduler.Delay"
+         name="HWSim Delay Scheduler"
+         point="de.uka.ipd.sdq.scheduler">
+      <scheduler
+            class="org.palladiosimulator.hwsimcoupling.scheduler.HWSimDelaySchedulerExtensionFactory">
+      </scheduler>
+   </extension>
+   
+   <extension
+         id="org.palladiosimulator.hwsimcoupling.scheduler.FCFS"
+         name="HWSim FCFS Scheduler"
+         point="de.uka.ipd.sdq.scheduler">
+      <scheduler
+            class="org.palladiosimulator.hwsimcoupling.scheduler.HWSimFCFSSchedulerExtensionFactory">
+      </scheduler>
+   </extension>
+   
+   <extension  
+         id="org.palladiosimulator.hwsimcoupling.scheduler.ProcessorSharing"
+         name="HWSim Processor Sharing Scheduler"
+         point="de.uka.ipd.sdq.scheduler">
+      <scheduler
+            class="org.palladiosimulator.hwsimcoupling.scheduler.HWSimProcessorSharingSchedulerExtensionFactory">
+      </scheduler>
+    </extension>
+>
+</plugin>
