@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.palladiosimulator.hwsimcoupling.configuration.HWsimCouplingManager;
 
-public class ConfigurationManager{
+public class ConfigurationManager {
 	
 	private List<TabItemWithParameterList> tabItemsWithParameterList;
 	
@@ -154,6 +154,14 @@ public class ConfigurationManager{
 		private Table table;
 		private Composite composite;
 		
+		private Text key;
+		private Text value;
+		private Button addButton;
+		private Button cancelButton;
+		private Button delButton;
+		
+		private boolean editingMode;
+		
 		
 		public ParameterList(Composite parent, TabItem tabItem, Map<String, String> parameters) {
 			composite = new Composite(parent, SWT.BORDER);
@@ -161,7 +169,7 @@ public class ConfigurationManager{
 		    gridLayout.numColumns = 1;
 		    composite.setLayout(gridLayout);
 			
-			table = new Table (composite, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+			table = new Table (composite, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
 			table.setLinesVisible (true);
 			table.setHeaderVisible (true);
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -179,6 +187,8 @@ public class ConfigurationManager{
 				item.setText (0, parameter.getKey());
 				item.setText (1, parameter.getValue());
 			}
+			
+			
 
 			for (int i=0; i<titles.length; i++) {
 				table.getColumn(i).pack();
@@ -186,7 +196,7 @@ public class ConfigurationManager{
 			
 			Composite add = new Composite(composite, SWT.NONE);
 			GridLayout gridLayoutAdd = new GridLayout();
-		    gridLayoutAdd.numColumns = 4;
+		    gridLayoutAdd.numColumns = 5;
 		    add.setLayout(gridLayoutAdd);
 		    
 		    Label keyLabel = new Label(add, SWT.NONE);
@@ -195,37 +205,69 @@ public class ConfigurationManager{
 		    valueLabel.setText("Value");
 		    addEmptyLabel(add);
 		    addEmptyLabel(add);
+		    addEmptyLabel(add);
 		    
-		    Text key = new Text(add, SWT.BORDER);
+		    key = new Text(add, SWT.BORDER);
 		    key.setEditable(true);
-		    Text value = new Text(add, SWT.BORDER);
+		    value = new Text(add, SWT.BORDER);
 		    value.setEditable(true);
-		    Button addButton = new Button(add, SWT.NONE);
+		    addButton = new Button(add, SWT.NONE);
 		    addButton.setText("Add Parameter");
 		    addButton.addSelectionListener(new SelectionListenerDummy() {
 				
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					TableItem item = new TableItem (table, SWT.NONE);
-					item.setText (0, key.getText());
-					item.setText (1, value.getText());
-					key.setText("");
-					value.setText("");
-					
+					if (editingMode) {
+						TableItem item = table.getItem(table.getSelectionIndex());
+						item.setText (0, key.getText());
+						item.setText (1, value.getText());
+						cancelEditingMode();
+					} else {
+						TableItem item = new TableItem (table, SWT.NONE);
+						item.setText (0, key.getText());
+						item.setText (1, value.getText());
+						key.setText("");
+						value.setText("");
+					}
 				}
 				
 			});
 		    
-		    Button delButton = new Button(add, SWT.NONE);
+		    cancelButton = new Button(add, SWT.NONE);
+		    cancelButton.setText("Cancel Editing");
+		    cancelButton.setVisible(false);
+		    cancelButton.addSelectionListener(new SelectionListenerDummy() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (editingMode) {
+						cancelEditingMode();
+					} 
+				}
+				
+			});
+		    
+		    delButton = new Button(add, SWT.NONE);
 		    delButton.setText("Delete selected Parameter");
+		    delButton.setVisible(false);
 		    delButton.addSelectionListener(new SelectionListenerDummy() {
 				
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					table.remove(table.getSelectionIndices());
+					cancelEditingMode();
 					
 				}
 
+			});
+		    
+		    editingMode = false;
+		    
+		    table.addSelectionListener(new SelectionListenerDummy() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					enterEditingMode();
+				}
 			});
 		    
 		}
@@ -236,6 +278,24 @@ public class ConfigurationManager{
 				parameters.put(tableItem.getText(0), tableItem.getText(1));
 			}
 			return parameters;
+		}
+		
+		private void enterEditingMode() {
+			key.setText(table.getItem(table.getSelectionIndex()).getText(0));
+			value.setText(table.getItem(table.getSelectionIndex()).getText(1));
+			editingMode = true;
+			addButton.setText("Edit Parameter");
+			cancelButton.setVisible(true);
+			delButton.setVisible(true);
+		}
+		
+		private void cancelEditingMode() {
+			key.setText("");
+			value.setText("");
+			editingMode = false;
+			cancelButton.setVisible(false);
+			delButton.setVisible(false);
+			addButton.setText("Add Parameter");
 		}
 		
 	}

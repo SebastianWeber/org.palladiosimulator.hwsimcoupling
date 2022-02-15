@@ -7,7 +7,12 @@
       <command
             defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.OpenManagerHandler"
             id="org.palladiosimulator.hwsimcoupling.openManager"
-            name="Open Manager">
+            name="Open Profile Manager">
+      </command>
+      <command
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.OpenAvailableHandler"
+            id="org.palladiosimulator.hwsimcoupling.openAvailable"
+            name="Open available HWSim">
       </command>
    </extension>
    <extension
@@ -22,6 +27,12 @@
                   label="Open Manager"
                   style="push"
                   tooltip="Open the manager to configure additional parameters">
+            </command>
+            <command
+                  commandId="org.palladiosimulator.hwsimcoupling.openAvailable"
+                  label="Display Available HWSim"
+                  style="push"
+                  tooltip="Display available HWSim">
             </command>
          </menu>
       </menuContribution>

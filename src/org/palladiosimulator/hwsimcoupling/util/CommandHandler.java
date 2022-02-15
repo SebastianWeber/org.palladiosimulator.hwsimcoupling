@@ -14,6 +14,8 @@ import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
  * Encapsulates the commands from one coupling
  */
 public abstract class CommandHandler {
+	
+	protected String[] parameters;
 
 	/**
 	 * @param parameterMap
@@ -42,5 +44,19 @@ public abstract class CommandHandler {
 	 * @return {@link org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer}
 	 */
 	public abstract ErrorConsumer getErrorConsumer();
+	
+	public String[] getParameters() {
+		return parameters;
+	}
+	
+	public String getParametersAsString() {
+		String parametersAsString = "";
+		for (String parameter : parameters) {
+			parametersAsString += parameter + ", ";
+		}
+		return parametersAsString.substring(0, parametersAsString.length() - 2);
+	}
+	
+	
 	
 }

@@ -24,9 +24,33 @@ public class HWsimCouplingManager {
 	private static DemandCacheImpl SHAREDDEMANDCACHEIMPL;
 	private static Map<String, Map<String, String>> currentProfiles = getParameters();
 	
-	private static Map<String, CommandHandler> extensionCommandHandlers = new HashMap<String, CommandHandler>();
+	private static Map<String, CommandHandler> extensionCommandHandlers = loadCommandHandlers();
 	private static final String EXTENSION_POINT_ID =
             "org.palladiosimulator.hwsimcoupling.hwsim";
+	
+	private static Map<String, CommandHandler> loadCommandHandlers() {
+		Map<String, CommandHandler> extensionCommandHandlers = new HashMap<String, CommandHandler>();
+		IExtensionRegistry registry = Platform.getExtensionRegistry();
+		IExtensionPoint point = registry.getExtensionPoint(EXTENSION_POINT_ID);
+		if (point == null) {
+			throw new DemandCalculationFailureException("Failed loading the extension point  " + EXTENSION_POINT_ID + ". Please install the plugin org.palladiosimulator.hwsimcoupling.");
+		}
+		IExtension[] extensions = point.getExtensions();
+		for (IExtension extension : extensions) {
+			for (IConfigurationElement element : extension.getConfigurationElements()) {
+				Object o;
+				try {
+					o = element.createExecutableExtension("class");
+					if (o instanceof CommandHandler) {
+						extensionCommandHandlers.put(element.getAttribute("name"), (CommandHandler) o);
+	                }
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return extensionCommandHandlers;
+	}
 	
 	public static CommandHandler getCommandHandler(String extensionName) {
 		
@@ -34,37 +58,15 @@ public class HWsimCouplingManager {
 		if (commandHandler != null) {
 			return commandHandler;
 		}
-		
-		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IExtensionPoint point = registry.getExtensionPoint(EXTENSION_POINT_ID);
-		if (point == null) return null;
-		IExtension[] extensions = point.getExtensions();
-		for (IExtension extension : extensions) {
-			boolean correctCommandHandler = false;
-			for (IConfigurationElement element : extension.getConfigurationElements()) {
-				System.out.println(element);
-				for (String attr : element.getAttributeNames()) {
-					System.out.println(attr);
-				}
-				if (element.getAttribute("name") != null && element.getAttribute("name").equals(extensionName)) {
-					correctCommandHandler = true;
-				}
-				Object o;
-				try {
-					o = element.createExecutableExtension("class");
-					if (o instanceof CommandHandler) {
-	                	commandHandler = (CommandHandler) o;
-	                }
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			if (correctCommandHandler) {
-				extensionCommandHandlers.put(extensionName, commandHandler);
-				return commandHandler;
-			}
-		}
 		throw new DemandCalculationFailureException("Failed to find plugin with extension name: " + extensionName);
+	}
+	
+	public static Map<String, String> getRequiredParameters() {
+		Map<String, String> requiredParameters = new HashMap<String, String>();
+		for (Entry<String, CommandHandler> entry : extensionCommandHandlers.entrySet()) {
+			requiredParameters.put(entry.getKey(), entry.getValue().getParametersAsString());
+		}
+		return requiredParameters;
 	}
 	
 	public static Map<String, Serializable> mergeParameterMapWithProfile(Map<String, Serializable> parameterMap, String profile) {
