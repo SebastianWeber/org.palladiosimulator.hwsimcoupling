@@ -2,11 +2,12 @@ package org.palladiosimulator.hwsimcoupling.util.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
-import org.palladiosimulator.hwsimcoupling.configuration.HWsimCouplingManager;
+import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
+import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
@@ -18,16 +19,50 @@ import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 
 public class DemandCacheImpl implements DemandCache{
 	
-	public DemandCacheImpl() {
-		this.demands = new HashMap<String, String>();
-		this.fileManager = new FileManagerImpl();
+	private static DemandCacheImpl INSTANCE;
+	
+	public static DemandCacheImpl getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new DemandCacheImpl();
+		}
+		return INSTANCE;
 	}
 	
-	private HashMap<String, String> demands;
+	private Map<String, String> demands;
 	private FileManager fileManager;
+	private ProfileCache profileCache;
+	
+	private DemandCacheImpl() {
+		this.demands = PersistenceManager.loadDemands();
+		this.fileManager = new FileManagerImpl();
+		this.profileCache = ProfileCache.getInstance();
+	}
+	
+	public void saveDemands() {
+		PersistenceManager.saveDemands(demands);
+	}
+	
+	public Map<String, String> getDemands() {
+		return demands;
+	}
+	
+	public void addDemand(String key, String value) {
+		demands.put(key, value);
+		saveDemands();
+	}
+	
+	public void removeDemand(String key) {
+		demands.remove(key);
+		saveDemands();
+	}
 	
 	public double get(Map<String, Serializable> parameterMap, RESOURCE resource, CommandHandler commandHandler) {
-		parameterMap = HWsimCouplingManager.mergeParameterMapWithProfile(parameterMap, MapHelper.get_required_value_from_map(parameterMap, "hwsim"));
+		String profile = MapHelper.get_value_from_map(parameterMap, "hwsim");
+		if (profile == null) {
+			String containerID = MapHelper.get_required_value_from_map(parameterMap, "containerID");
+			profile = profileCache.getProfile(containerID);
+		}
+		parameterMap = profileCache.mergeParameterMapWithProfile(parameterMap, profile);
 		String key = MapHelper.get_map_as_one_string(parameterMap);
 		long processingrate = Long.parseLong(MapHelper.get_required_value_from_map(parameterMap, "processingrate"));
 		
@@ -37,7 +72,8 @@ public class DemandCacheImpl implements DemandCache{
 				parameterMap = fileManager.copy_files(parameterMap, commandHandler);
 				String demand = simulate(parameterMap, commandHandler);
 				if (demand != null) {
-					demands.put(key, demand);
+					addDemand(key, demand);
+					saveDemands();
 					System.out.println("Evaluated demand: " + demand + " for key: " + key);
 					return get(demand, resource)/processingrate;
 				} else {

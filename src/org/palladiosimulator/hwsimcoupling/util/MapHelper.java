@@ -20,6 +20,14 @@ public class MapHelper {
 		}
 	}
 	
+	public static String get_value_from_map(Map<String, Serializable> map, String key) {
+		if (map.get(key) != null) {
+			return String.valueOf(map.get(key)).replaceAll("\"", "");
+		} else {
+			return null;
+		}
+	}
+	
 	public static String get_map_as_one_string(Map<String, Serializable> map) {
 		String one_string = "";
 		for (Entry<String,Serializable> pair : map.entrySet()){

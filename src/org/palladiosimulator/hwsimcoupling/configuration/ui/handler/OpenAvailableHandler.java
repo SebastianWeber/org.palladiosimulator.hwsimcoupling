@@ -1,4 +1,4 @@
-package org.palladiosimulator.hwsimcoupling.configuration;
+package org.palladiosimulator.hwsimcoupling.configuration.ui.handler;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -12,7 +12,7 @@ public class OpenAvailableHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent executionEvent) throws ExecutionException {
 		Shell shell = new Shell (UIUtility.getDisplay());
-		shell.setText("Available HWsim");
+		shell.setText("Cached Demands");
 		shell.setLayout(new GridLayout());
 		new AvailableManager(shell);
 		shell.pack();

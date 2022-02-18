@@ -5,14 +5,19 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.OpenManagerHandler"
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenManagerHandler"
             id="org.palladiosimulator.hwsimcoupling.openManager"
             name="Open Profile Manager">
       </command>
       <command
-            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.OpenAvailableHandler"
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenAvailableHandler"
             id="org.palladiosimulator.hwsimcoupling.openAvailable"
             name="Open available HWSim">
+      </command>
+      <command
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenDemandCacheHandler"
+            id="org.palladiosimulator.hwsimcoupling.openDemandCache"
+            name="Open Demand Cache">
       </command>
    </extension>
    <extension
@@ -24,15 +29,21 @@
                label="HWSimCoupling">
             <command
                   commandId="org.palladiosimulator.hwsimcoupling.openManager"
-                  label="Open Manager"
+                  label="Open profile manager"
                   style="push"
                   tooltip="Open the manager to configure additional parameters">
             </command>
             <command
                   commandId="org.palladiosimulator.hwsimcoupling.openAvailable"
-                  label="Display Available HWSim"
+                  label="Display available hwsim"
                   style="push"
                   tooltip="Display available HWSim">
+            </command>
+            <command
+                  commandId="org.palladiosimulator.hwsimcoupling.openDemandCache"
+                  label="Open demand cache Manager"
+                  style="push"
+                  tooltip="Open the manager to configure the demand cache">
             </command>
          </menu>
       </menuContribution>

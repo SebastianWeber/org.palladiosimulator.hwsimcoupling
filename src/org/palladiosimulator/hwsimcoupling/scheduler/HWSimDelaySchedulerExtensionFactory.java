@@ -16,7 +16,6 @@ public class HWSimDelaySchedulerExtensionFactory implements SchedulerExtensionFa
 	@Override
 	public IActiveResource getExtensionScheduler(SchedulerModel model, String resourceName, String resourceId,
 			long numberOfCores, IResourceTableManager resourceTableManager) {
-
 		return new HWSimSimDelayResource(model, resourceId, resourceId, resourceTableManager);
 	}
 

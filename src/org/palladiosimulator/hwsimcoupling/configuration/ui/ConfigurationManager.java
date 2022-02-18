@@ -1,5 +1,6 @@
 package org.palladiosimulator.hwsimcoupling.configuration.ui;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.palladiosimulator.hwsimcoupling.configuration.HWsimCouplingManager;
+import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
 
 public class ConfigurationManager {
 	
@@ -34,8 +35,8 @@ public class ConfigurationManager {
 	public ConfigurationManager(Shell shell) {
 		this.tabItemsWithParameterList = new ArrayList<TabItemWithParameterList>();
 		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
-		Map<String, Map<String, String>> profiles = HWsimCouplingManager.getParameters();
-		for (Entry<String, Map<String, String>> profile : profiles.entrySet()) {
+		Map<String, Map<String, Serializable>> profiles = PersistenceManager.loadProfiles();
+		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
 			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
 			this.tabItemsWithParameterList.add(tabItem);
 		}
@@ -81,15 +82,15 @@ public class ConfigurationManager {
 	}
 	
 	private void addTab(TabFolder tabFolder) {
-		this.tabItemsWithParameterList.add(new TabItemWithParameterList(tabFolder, "", new HashMap<String, String>()));
+		this.tabItemsWithParameterList.add(new TabItemWithParameterList(tabFolder, "", new HashMap<String, Serializable>()));
 	}
 	
 	private void save(TabFolder tabFolder) {
-		Map<String, Map<String, String>> profiles = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Serializable>> profiles = new HashMap<String, Map<String, Serializable>>();
 		for (TabItemWithParameterList tabItem : this.tabItemsWithParameterList) {
 			profiles.put(tabItem.getText(), tabItem.getParameters());
 		}
-		HWsimCouplingManager.saveParameters(profiles);
+		PersistenceManager.saveProfiles(profiles);
 	}
 	
 	private abstract class SelectionListenerDummy implements SelectionListener {
@@ -108,7 +109,7 @@ public class ConfigurationManager {
 		private ParameterList parameterList;
 		private Composite composite;
 		
-		public TabItemWithParameterList(TabFolder parent, String name, Map<String, String> parameters) {
+		public TabItemWithParameterList(TabFolder parent, String name, Map<String, Serializable> map) {
 			tabItem = new TabItem(parent, SWT.NONE);
 			composite = new Composite(parent, SWT.NONE);
 			GridLayout gridLayout = new GridLayout();
@@ -131,11 +132,11 @@ public class ConfigurationManager {
 				
 			});
 		    tabItem.setText(name);
-			parameterList = new ParameterList(composite, tabItem, parameters);
+			parameterList = new ParameterList(composite, tabItem, map);
 			tabItem.setControl(composite);
 		}
-		
-		public Map<String, String> getParameters(){
+
+		public Map<String, Serializable> getParameters(){
 			return parameterList.getParameters();
 		}
 		
@@ -163,7 +164,7 @@ public class ConfigurationManager {
 		private boolean editingMode;
 		
 		
-		public ParameterList(Composite parent, TabItem tabItem, Map<String, String> parameters) {
+		public ParameterList(Composite parent, TabItem tabItem, Map<String, Serializable> parameters) {
 			composite = new Composite(parent, SWT.BORDER);
 			GridLayout gridLayout = new GridLayout();
 		    gridLayout.numColumns = 1;
@@ -182,10 +183,10 @@ public class ConfigurationManager {
 			}
 			
 			
-			for (Entry<String, String> parameter : parameters.entrySet()) {
+			for (Entry<String, Serializable> parameter : parameters.entrySet()) {
 				TableItem item = new TableItem (table, SWT.NONE);
 				item.setText (0, parameter.getKey());
-				item.setText (1, parameter.getValue());
+				item.setText (1, (String) parameter.getValue());
 			}
 			
 			
@@ -272,8 +273,8 @@ public class ConfigurationManager {
 		    
 		}
 		
-		public Map<String, String> getParameters(){
-			Map<String, String> parameters = new HashMap<String, String>();
+		public Map<String, Serializable> getParameters(){
+			Map<String, Serializable> parameters = new HashMap<String, Serializable>();
 			for (TableItem tableItem : table.getItems()) {
 				parameters.put(tableItem.getText(0), tableItem.getText(1));
 			}
