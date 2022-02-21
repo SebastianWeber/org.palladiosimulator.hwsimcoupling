@@ -5,17 +5,17 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenManagerHandler"
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenProfileConfigrationUI"
             id="org.palladiosimulator.hwsimcoupling.openManager"
             name="Open Profile Manager">
       </command>
       <command
-            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenAvailableHandler"
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenAvailableExtensionUI"
             id="org.palladiosimulator.hwsimcoupling.openAvailable"
             name="Open available HWSim">
       </command>
       <command
-            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenDemandCacheHandler"
+            defaultHandler="org.palladiosimulator.hwsimcoupling.configuration.ui.handler.OpenDemandCacheUI"
             id="org.palladiosimulator.hwsimcoupling.openDemandCache"
             name="Open Demand Cache">
       </command>

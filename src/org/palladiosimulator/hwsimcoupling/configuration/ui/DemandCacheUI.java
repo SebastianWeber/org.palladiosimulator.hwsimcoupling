@@ -15,19 +15,25 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
 
-public class DemandCacheManager {
+public class DemandCacheUI extends EclipseCommandUI {
 	
 	private DemandCacheImpl demandCacheImpl;
 
-	public DemandCacheManager(Shell shell) {
+	public DemandCacheUI(Shell shell) {
+		super(shell);
 		demandCacheImpl = DemandCacheImpl.getInstance();
 		
+	}
+
+	@Override
+	public void createUI() {
 		Table table = new Table (shell, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible (true);
 		table.setHeaderVisible (true);
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.heightHint = 200;
 		table.setLayoutData(data);
+		
 		String[] titles = {"Parameters", "Demand"};
 		for (String title : titles) {
 			TableColumn column = new TableColumn (table, SWT.NONE);
@@ -40,6 +46,7 @@ public class DemandCacheManager {
 			item.setText (0, parameter.getKey());
 			item.setText (1, parameter.getValue());
 		}
+		
 		for (int i=0; i<titles.length; i++) {
 			table.getColumn(i).pack();
 		}
@@ -59,5 +66,5 @@ public class DemandCacheManager {
 			}
 		});
 	}
-	
+		
 }

@@ -27,58 +27,15 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
+import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 
-public class ConfigurationManager {
+public class ProfileConfigurationUI extends EclipseCommandUI {
 	
 	private List<TabItemWithParameterList> tabItemsWithParameterList;
 	
-	public ConfigurationManager(Shell shell) {
+	public ProfileConfigurationUI(Shell shell) {
+		super(shell);
 		this.tabItemsWithParameterList = new ArrayList<TabItemWithParameterList>();
-		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
-		Map<String, Map<String, Serializable>> profiles = PersistenceManager.loadProfiles();
-		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
-			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
-			this.tabItemsWithParameterList.add(tabItem);
-		}
-		
-	    Button saveButton = new Button(shell, SWT.NONE);
-	    saveButton.setText("Save");
-	    saveButton.addSelectionListener(new SelectionListenerDummy() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				save(tabFolder);
-			}
-		});
-	    
-	    GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
-        gridData.horizontalSpan = 4;
-        saveButton.setLayoutData(gridData);
-		
-		Menu menu = new Menu (shell, SWT.POP_UP);
-		tabFolder.setMenu (menu);
-		MenuItem itemDel = new MenuItem (menu, SWT.PUSH);
-		itemDel.setText ("Delete Profile");
-		itemDel.addListener (SWT.Selection, new Listener() {
-			
-			@Override
-			public void handleEvent(Event event) {
-				TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
-				int indexToRemove = -1;
-				for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
-					if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
-						indexToRemove = i;
-					}
-				}
-				if (indexToRemove != -1) {
-					tabItemsWithParameterList.remove(indexToRemove);
-				}
-				tabItem.dispose();
-			}
-		});
-		MenuItem itemAdd = new MenuItem (menu, SWT.PUSH);
-		itemAdd.setText ("Add Profile");
-		itemAdd.addListener (SWT.Selection, event -> addTab(tabFolder));
 	}
 	
 	private void addTab(TabFolder tabFolder) {
@@ -86,11 +43,12 @@ public class ConfigurationManager {
 	}
 	
 	private void save(TabFolder tabFolder) {
-		Map<String, Map<String, Serializable>> profiles = new HashMap<String, Map<String, Serializable>>();
+		ProfileCache profileCache = ProfileCache.getInstance();
+		profileCache.clearCache();
 		for (TabItemWithParameterList tabItem : this.tabItemsWithParameterList) {
-			profiles.put(tabItem.getText(), tabItem.getParameters());
+			profileCache.addProfile(tabItem.getText(), tabItem.getParameters());
 		}
-		PersistenceManager.saveProfiles(profiles);
+		profileCache.saveProfiles();
 	}
 	
 	private abstract class SelectionListenerDummy implements SelectionListener {
@@ -299,6 +257,55 @@ public class ConfigurationManager {
 			addButton.setText("Add Parameter");
 		}
 		
+	}
+
+	@Override
+	public void createUI() {
+		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
+		Map<String, Map<String, Serializable>> profiles = PersistenceManager.loadProfiles();
+		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
+			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
+			this.tabItemsWithParameterList.add(tabItem);
+		}
+		
+	    Button saveButton = new Button(shell, SWT.NONE);
+	    saveButton.setText("Save");
+	    saveButton.addSelectionListener(new SelectionListenerDummy() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				save(tabFolder);
+			}
+		});
+	    
+	    GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gridData.horizontalSpan = 4;
+        saveButton.setLayoutData(gridData);
+		
+		Menu menu = new Menu (shell, SWT.POP_UP);
+		tabFolder.setMenu (menu);
+		MenuItem itemDel = new MenuItem (menu, SWT.PUSH);
+		itemDel.setText ("Delete Profile");
+		itemDel.addListener (SWT.Selection, new Listener() {
+			
+			@Override
+			public void handleEvent(Event event) {
+				TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
+				int indexToRemove = -1;
+				for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
+					if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
+						indexToRemove = i;
+					}
+				}
+				if (indexToRemove != -1) {
+					tabItemsWithParameterList.remove(indexToRemove);
+				}
+				tabItem.dispose();
+			}
+		});
+		MenuItem itemAdd = new MenuItem (menu, SWT.PUSH);
+		itemAdd.setText ("Add Profile");
+		itemAdd.addListener (SWT.Selection, event -> addTab(tabFolder));
 	}
 
 }

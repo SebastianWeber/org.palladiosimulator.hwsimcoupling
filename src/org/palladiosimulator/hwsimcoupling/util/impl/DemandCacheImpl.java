@@ -2,8 +2,12 @@ package org.palladiosimulator.hwsimcoupling.util.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
 import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
@@ -18,6 +22,9 @@ import org.palladiosimulator.hwsimcoupling.util.FileManager;
 import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 
 public class DemandCacheImpl implements DemandCache{
+	
+	protected static final Logger LOGGER = org.apache.log4j.Logger.getLogger(DemandCacheImpl.class);
+	protected static List<String> loggedWarnings = new ArrayList<String>();
 	
 	private static DemandCacheImpl INSTANCE;
 	
@@ -61,6 +68,11 @@ public class DemandCacheImpl implements DemandCache{
 		if (profile == null) {
 			String containerID = MapHelper.get_required_value_from_map(parameterMap, "containerID");
 			profile = profileCache.getProfile(containerID);
+			String warning = "No profile given, using containerID " + containerID + ". Found profile " + profile + ".";
+            if (!loggedWarnings.contains(warning)) {
+                loggedWarnings.add(warning);
+                LOGGER.warn(warning);
+            }
 		}
 		parameterMap = profileCache.mergeParameterMapWithProfile(parameterMap, profile);
 		String key = MapHelper.get_map_as_one_string(parameterMap);
@@ -68,13 +80,13 @@ public class DemandCacheImpl implements DemandCache{
 		
 		if(!demands.containsKey(key)) {
 			try {
-				System.out.println("Evaluating demand for key: " + key);
+				LOGGER.warn("Evaluating demand for key: " + key);
 				parameterMap = fileManager.copy_files(parameterMap, commandHandler);
 				String demand = simulate(parameterMap, commandHandler);
 				if (demand != null) {
 					addDemand(key, demand);
 					saveDemands();
-					System.out.println("Evaluated demand: " + demand + " for key: " + key);
+					LOGGER.warn("Evaluated demand: " + demand + " for key: " + key);
 					return get(demand, resource)/processingrate;
 				} else {
 					throw new DemandCalculationFailureException("Failed to evaluate demand. Please check the executed commands for errors.");
@@ -91,7 +103,9 @@ public class DemandCacheImpl implements DemandCache{
 	private double get(String demands, RESOURCE resource) {
 		for (String demand : demands.split(";")) {
 			if (demand.strip().startsWith(resource.toString())) {
-				return Double.parseDouble(demand.strip().replace(resource.toString(), "").strip());
+				String[] demandArray = demand.strip().replace(resource.toString(), "").strip().split(",");
+				int randomIndex = ThreadLocalRandom.current().nextInt(0, demandArray.length);
+				return Double.parseDouble(demandArray[randomIndex].strip());
 			}
 		}
 		throw new DemandCalculationFailureException("Failed to evaluate demand.");

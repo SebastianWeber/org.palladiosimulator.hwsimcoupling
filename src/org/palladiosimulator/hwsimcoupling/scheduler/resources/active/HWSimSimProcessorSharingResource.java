@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.palladiosimulator.hwsimcoupling.configuration.ExtensionManager;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
-import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache.RESOURCE;
 import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
 

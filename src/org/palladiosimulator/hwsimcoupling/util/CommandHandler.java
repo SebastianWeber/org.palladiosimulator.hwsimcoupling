@@ -45,16 +45,23 @@ public abstract class CommandHandler {
 	 */
 	public abstract ErrorConsumer getErrorConsumer();
 	
+	/**
+	 * @return the parameter keys necessary for the hwsim to work (Copy, Simulation, Extraction) as array
+	 */
 	public String[] getParameters() {
 		return parameters;
 	}
 	
+	/**
+	 * @return the parameter keys necessary for the hwsim to work (Copy, Simulation, Extraction) as string
+	 */
 	public String getParametersAsString() {
 		String parametersAsString = "";
 		for (String parameter : parameters) {
 			parametersAsString += parameter + ", ";
 		}
-		return parametersAsString.substring(0, parametersAsString.length() - 2);
+		parametersAsString += "processingrate";
+		return parametersAsString;
 	}
 	
 	

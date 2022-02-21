@@ -11,15 +11,22 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 
-public class AvailableManager {
+public class AvailableExtensionUI extends EclipseCommandUI {
 
-	public AvailableManager(Shell shell) {
+	public AvailableExtensionUI(Shell shell) {
+		super(shell);
+		
+	}
+
+	@Override
+	public void createUI() {
 		Table table = new Table (shell, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible (true);
 		table.setHeaderVisible (true);
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.heightHint = 200;
 		table.setLayoutData(data);
+		
 		String[] titles = {"HWSim", "Parameters"};
 		for (String title : titles) {
 			TableColumn column = new TableColumn (table, SWT.NONE);
@@ -32,9 +39,11 @@ public class AvailableManager {
 			item.setText (0, parameter.getKey());
 			item.setText (1, parameter.getValue());
 		}
+		
 		for (int i=0; i<titles.length; i++) {
 			table.getColumn(i).pack();
 		}
 	}
+
 
 }

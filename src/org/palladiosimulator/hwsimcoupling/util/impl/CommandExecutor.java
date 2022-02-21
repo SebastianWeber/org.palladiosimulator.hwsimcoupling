@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.hwsimcoupling.commands.Command;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 
@@ -16,6 +17,8 @@ import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureEx
  * Executes {@link org.palladiosimulator.hwsimcoupling.commands.Command}
  */
 public class CommandExecutor {
+	
+	protected static final Logger LOGGER = org.apache.log4j.Logger.getLogger(CommandExecutor.class);
 
 	/**
 	 * Executes the given {@link org.palladiosimulator.hwsimcoupling.commands.Command} 
@@ -27,9 +30,11 @@ public class CommandExecutor {
 	 * @throws InterruptedException
 	 */
 	public static void execute_command(Command command, Consumer<String> outputConsumer, Consumer<String> errorConsumer) throws IOException, InterruptedException {
-		System.out.print("Executing command: ");
-		command.get_command().forEach(x -> System.out.print(x + " "));
-		System.out.println("");
+		String commandLogging = "Executing command: ";
+		for (String commandPart : command.get_command()) {
+			commandLogging += commandPart + " ";
+		}
+		LOGGER.warn(commandLogging);
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command(command.get_command());
 		Process process = builder.start();

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
-import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
 
 public class ProfileCache {
 
@@ -23,6 +23,10 @@ public class ProfileCache {
 	
 	public void saveProfiles() {
 		PersistenceManager.saveProfiles(profiles);
+	}
+	
+	public void clearCache() {
+		profiles.clear();
 	}
 	
 	public Map<String, Map<String, Serializable>> getProfiles() {
@@ -56,16 +60,19 @@ public class ProfileCache {
 	}
 	
 	public Map<String, Serializable> getParameterMap(String profile) {
-		return profiles.get(profile);
+		if (profiles.get(profile) != null) {
+			return profiles.get(profile);
+		}
+		throw new DemandCalculationFailureException("Could not find profile " + profile);
 	}
 	
 	public String getProfile(String containerID) {
 		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
-			if (profile.getValue().get("containerID").equals(containerID)) {
+			if (profile.getValue().get(Parameter.CONTAINERID.getKeyword()).equals(containerID)) {
 				return profile.getKey();
 			}
 		}
-		return null;
+		throw new DemandCalculationFailureException("Could not find profile with containerID " + containerID);
 	}
 	
 }

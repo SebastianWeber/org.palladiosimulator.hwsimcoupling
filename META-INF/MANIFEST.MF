@@ -29,4 +29,5 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,
- org.eclipse.gmf.runtime.emf.core
+ org.eclipse.gmf.runtime.emf.core,
+ org.apache.log4j
