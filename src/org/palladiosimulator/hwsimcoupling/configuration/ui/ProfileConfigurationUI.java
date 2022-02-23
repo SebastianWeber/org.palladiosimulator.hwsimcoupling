@@ -1,6 +1,5 @@
 package org.palladiosimulator.hwsimcoupling.configuration.ui;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +13,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -32,18 +31,19 @@ import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 public class ProfileConfigurationUI extends EclipseCommandUI {
 	
 	private List<TabItemWithParameterList> tabItemsWithParameterList;
+	private ProfileCache profileCache;
 	
-	public ProfileConfigurationUI(Shell shell) {
-		super(shell);
+	public ProfileConfigurationUI(Composite parent) {
+		super(parent);
 		this.tabItemsWithParameterList = new ArrayList<TabItemWithParameterList>();
+		this.profileCache = ProfileCache.getInstance();
 	}
 	
 	private void addTab(TabFolder tabFolder) {
-		this.tabItemsWithParameterList.add(new TabItemWithParameterList(tabFolder, "", new HashMap<String, Serializable>()));
+		this.tabItemsWithParameterList.add(new TabItemWithParameterList(tabFolder, "", new HashMap<String, String>()));
 	}
 	
 	private void save(TabFolder tabFolder) {
-		ProfileCache profileCache = ProfileCache.getInstance();
 		profileCache.clearCache();
 		for (TabItemWithParameterList tabItem : this.tabItemsWithParameterList) {
 			profileCache.addProfile(tabItem.getText(), tabItem.getParameters());
@@ -51,50 +51,73 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		profileCache.saveProfiles();
 	}
 	
-	private abstract class SelectionListenerDummy implements SelectionListener {
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
+	@Override
+	public Control createUI() {
+		TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+		Map<String, Map<String, String>> profiles = PersistenceManager.loadProfiles();
+		for (Entry<String, Map<String, String>> profile : profiles.entrySet()) {
+			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
+			this.tabItemsWithParameterList.add(tabItem);
 		}
-	}
-	
-	private void addEmptyLabel(Composite composite) {
-		new Label(composite, SWT.NONE);
+		
+	    Button saveButton = new Button(parent, SWT.NONE);
+	    saveButton.setText("Save");
+	    saveButton.addSelectionListener(new DefaultSelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				save(tabFolder);
+			}
+		});
+	    
+	    GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gridData.horizontalSpan = 4;
+        saveButton.setLayoutData(gridData);
+		
+		Menu menu = new Menu (parent);
+		tabFolder.setMenu (menu);
+		MenuItem itemDel = new MenuItem (menu, SWT.PUSH);
+		itemDel.setText ("Delete Profile");
+		itemDel.addListener (SWT.Selection, new Listener() {
+			
+			@Override
+			public void handleEvent(Event event) {
+				TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
+				int indexToRemove = -1;
+				for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
+					if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
+						indexToRemove = i;
+					}
+				}
+				if (indexToRemove != -1) {
+					tabItemsWithParameterList.remove(indexToRemove);
+				}
+				tabItem.dispose();
+			}
+		});
+		MenuItem itemAdd = new MenuItem (menu, SWT.PUSH);
+		itemAdd.setText ("Add Profile");
+		itemAdd.addListener (SWT.Selection, event -> addTab(tabFolder));
+		return tabFolder;
 	}
 	
 	private class TabItemWithParameterList {
 
 		private TabItem tabItem;
+		private Text tabName;
 		private ParameterList parameterList;
 		private Composite composite;
 		
-		public TabItemWithParameterList(TabFolder parent, String name, Map<String, Serializable> map) {
-			tabItem = new TabItem(parent, SWT.NONE);
-			composite = new Composite(parent, SWT.NONE);
-			GridLayout gridLayout = new GridLayout();
-		    gridLayout.numColumns = 1;
-		    composite.setLayout(gridLayout);
-			Composite profileEditing = new Composite(composite, SWT.NONE);
-		    GridLayout gridLayoutProfileEditing = new GridLayout();
-		    gridLayoutProfileEditing.numColumns = 2;
-		    profileEditing.setLayout(gridLayoutProfileEditing);
-		    Text tabName = new Text(profileEditing, SWT.BORDER);
-			tabName.setEditable(true);
-		    Button saveEditingButton = new Button(profileEditing, SWT.NONE);
-		    saveEditingButton.setText("Save Tab Name");
-		    saveEditingButton.addSelectionListener(new SelectionListenerDummy() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					tabItem.setText(tabName.getText());
-				}
-				
-			});
-		    tabItem.setText(name);
+		public TabItemWithParameterList(TabFolder parent, String name, Map<String, String> map) {
+			composite = UIUtility.createCompositeWithLayout(parent, SWT.NONE, 1);
+			tabItem = UIUtility.createTabItemWithControl(parent, SWT.NONE, name, composite);
+			Composite profileEditing = UIUtility.createCompositeWithLayout(composite, SWT.NONE, 2);
+		    tabName = UIUtility.createEditableText(profileEditing, SWT.BORDER);
+		    UIUtility.createButton(profileEditing, SWT.NONE, "Save Tab Name", new SetTabItemNameSelectionListener());
 			parameterList = new ParameterList(composite, tabItem, map);
-			tabItem.setControl(composite);
 		}
 
-		public Map<String, Serializable> getParameters(){
+		public Map<String, String> getParameters(){
 			return parameterList.getParameters();
 		}
 		
@@ -106,8 +129,15 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 			return this.tabItem.equals(tabItem);
 		}
 		
+		private class SetTabItemNameSelectionListener extends DefaultSelectionListener {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				tabItem.setText(tabName.getText());
+			}
+		}
+		
 	}
-	
+
 	private class ParameterList {
 		
 		private Table table;
@@ -122,117 +152,36 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		private boolean editingMode;
 		
 		
-		public ParameterList(Composite parent, TabItem tabItem, Map<String, Serializable> parameters) {
-			composite = new Composite(parent, SWT.BORDER);
-			GridLayout gridLayout = new GridLayout();
-		    gridLayout.numColumns = 1;
-		    composite.setLayout(gridLayout);
-			
-			table = new Table (composite, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
-			table.setLinesVisible (true);
-			table.setHeaderVisible (true);
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-			data.heightHint = 200;
-			table.setLayoutData(data);
+		public ParameterList(Composite parent, TabItem tabItem, Map<String, String> parameters) {
+			composite = UIUtility.createCompositeWithLayout(parent, SWT.BORDER, 1);			
+			table = UIUtility.createTable(composite, SWT.SINGLE | SWT.FULL_SELECTION);
+
 			String[] titles = {"Key", "Value"};
-			for (String title : titles) {
-				TableColumn column = new TableColumn (table, SWT.NONE);
-				column.setText (title);
-			}
+			UIUtility.setTableData(table, titles, parameters);
 			
-			
-			for (Entry<String, Serializable> parameter : parameters.entrySet()) {
-				TableItem item = new TableItem (table, SWT.NONE);
-				item.setText (0, parameter.getKey());
-				item.setText (1, (String) parameter.getValue());
-			}
-			
-			
+			Composite add = UIUtility.createCompositeWithLayout(parent, SWT.NONE, 5);
+		    
+		    UIUtility.createLabel(add, SWT.NONE, "Key");
+		    UIUtility.createLabel(add, SWT.NONE, "Value");
+		    
+		    UIUtility.addEmptyLabel(add);
+		    UIUtility.addEmptyLabel(add);
+		    UIUtility.addEmptyLabel(add);
+		    
+		    key = UIUtility.createEditableText(add, SWT.BORDER);
+		    value = UIUtility.createEditableText(add, SWT.BORDER);
 
-			for (int i=0; i<titles.length; i++) {
-				table.getColumn(i).pack();
-			}
-			
-			Composite add = new Composite(composite, SWT.NONE);
-			GridLayout gridLayoutAdd = new GridLayout();
-		    gridLayoutAdd.numColumns = 5;
-		    add.setLayout(gridLayoutAdd);
+		    addButton = UIUtility.createButton(add, SWT.NONE, "Add Parameter", new AddSelectionListener());		    
+		    cancelButton = UIUtility.createButton(add, SWT.NONE, "Cancel Editing", new CancelSelectionListener());		    
+		    delButton = UIUtility.createButton(add, SWT.NONE, "Delete selected Parameter", new DeleteSelectionListener());
 		    
-		    Label keyLabel = new Label(add, SWT.NONE);
-		    keyLabel.setText("Key");
-		    Label valueLabel = new Label(add, SWT.NONE);
-		    valueLabel.setText("Value");
-		    addEmptyLabel(add);
-		    addEmptyLabel(add);
-		    addEmptyLabel(add);
-		    
-		    key = new Text(add, SWT.BORDER);
-		    key.setEditable(true);
-		    value = new Text(add, SWT.BORDER);
-		    value.setEditable(true);
-		    addButton = new Button(add, SWT.NONE);
-		    addButton.setText("Add Parameter");
-		    addButton.addSelectionListener(new SelectionListenerDummy() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (editingMode) {
-						TableItem item = table.getItem(table.getSelectionIndex());
-						item.setText (0, key.getText());
-						item.setText (1, value.getText());
-						cancelEditingMode();
-					} else {
-						TableItem item = new TableItem (table, SWT.NONE);
-						item.setText (0, key.getText());
-						item.setText (1, value.getText());
-						key.setText("");
-						value.setText("");
-					}
-				}
-				
-			});
-		    
-		    cancelButton = new Button(add, SWT.NONE);
-		    cancelButton.setText("Cancel Editing");
-		    cancelButton.setVisible(false);
-		    cancelButton.addSelectionListener(new SelectionListenerDummy() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (editingMode) {
-						cancelEditingMode();
-					} 
-				}
-				
-			});
-		    
-		    delButton = new Button(add, SWT.NONE);
-		    delButton.setText("Delete selected Parameter");
-		    delButton.setVisible(false);
-		    delButton.addSelectionListener(new SelectionListenerDummy() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					table.remove(table.getSelectionIndices());
-					cancelEditingMode();
-					
-				}
-
-			});
-		    
-		    editingMode = false;
-		    
-		    table.addSelectionListener(new SelectionListenerDummy() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					enterEditingMode();
-				}
-			});
+		    editingMode = false;		    
+		    table.addSelectionListener(new TableSelectionListener());
 		    
 		}
 		
-		public Map<String, Serializable> getParameters(){
-			Map<String, Serializable> parameters = new HashMap<String, Serializable>();
+		public Map<String, String> getParameters(){
+			Map<String, String> parameters = new HashMap<String, String>();
 			for (TableItem tableItem : table.getItems()) {
 				parameters.put(tableItem.getText(0), tableItem.getText(1));
 			}
@@ -257,55 +206,58 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 			addButton.setText("Add Parameter");
 		}
 		
-	}
-
-	@Override
-	public void createUI() {
-		TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
-		Map<String, Map<String, Serializable>> profiles = PersistenceManager.loadProfiles();
-		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
-			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
-			this.tabItemsWithParameterList.add(tabItem);
+		private void addTableItem() {
+			TableItem item = new TableItem (table, SWT.NONE);
+			item.setText (0, key.getText());
+			item.setText (1, value.getText());
+			key.setText("");
+			value.setText("");
 		}
 		
-	    Button saveButton = new Button(shell, SWT.NONE);
-	    saveButton.setText("Save");
-	    saveButton.addSelectionListener(new SelectionListenerDummy() {
+		private void editTableItem() {
+			TableItem item = table.getItem(table.getSelectionIndex());
+			item.setText (0, key.getText());
+			item.setText (1, value.getText());
+			cancelEditingMode();
+		}
+		
+		private class AddSelectionListener extends DefaultSelectionListener {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				save(tabFolder);
+				if (editingMode) {
+					editTableItem();
+				} else {
+					addTableItem();
+				}
 			}
-		});
-	    
-	    GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
-        gridData.horizontalSpan = 4;
-        saveButton.setLayoutData(gridData);
+		}
 		
-		Menu menu = new Menu (shell, SWT.POP_UP);
-		tabFolder.setMenu (menu);
-		MenuItem itemDel = new MenuItem (menu, SWT.PUSH);
-		itemDel.setText ("Delete Profile");
-		itemDel.addListener (SWT.Selection, new Listener() {
+		private class CancelSelectionListener extends DefaultSelectionListener {
 			
 			@Override
-			public void handleEvent(Event event) {
-				TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
-				int indexToRemove = -1;
-				for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
-					if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
-						indexToRemove = i;
-					}
-				}
-				if (indexToRemove != -1) {
-					tabItemsWithParameterList.remove(indexToRemove);
-				}
-				tabItem.dispose();
+			public void widgetSelected(SelectionEvent e) {
+				if (editingMode) {
+					cancelEditingMode();
+				} 
 			}
-		});
-		MenuItem itemAdd = new MenuItem (menu, SWT.PUSH);
-		itemAdd.setText ("Add Profile");
-		itemAdd.addListener (SWT.Selection, event -> addTab(tabFolder));
+		}
+		
+		private class DeleteSelectionListener extends DefaultSelectionListener {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				table.remove(table.getSelectionIndices());
+				cancelEditingMode();				
+			}
+		}		
+		
+		private class TableSelectionListener extends DefaultSelectionListener {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				enterEditingMode();
+			}
+		}
 	}
 
 }

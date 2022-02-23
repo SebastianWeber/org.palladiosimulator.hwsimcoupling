@@ -3,6 +3,7 @@ package org.palladiosimulator.hwsimcoupling.configuration;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -44,12 +45,20 @@ public class ExtensionManager {
 			String containerID = MapHelper.get_required_value_from_map(parameterMap, Parameter.CONTAINERID.getKeyword());
 			profile = profileCache.getProfile(containerID);
 		}
-		String hwsim = MapHelper.get_required_value_from_map(profileCache.getParameterMap(profile), Parameter.HWSIM.getKeyword());
+		String hwsim = MapHelper.get_required_value_from_map(castMap(profileCache.getParameterMap(profile)), Parameter.HWSIM.getKeyword());
 		CommandHandler commandHandler = commandHandlers.get(hwsim);		
 		if (commandHandler != null) {
 			return commandHandler;
 		}
 		throw new DemandCalculationFailureException("Failed to find plugin with extension name: " + hwsim);
+	}
+	
+	private Map<String, Serializable> castMap(Map<String, String> mapStr) {
+		Map<String, Serializable> map = new HashMap<String, Serializable>();
+		for (Entry<String, String> entry: mapStr.entrySet()) {
+			map.put(entry.getKey(), entry.getValue());
+		}
+		return map;
 	}
 	
 	private Map<String, CommandHandler> loadCommandHandlers() {

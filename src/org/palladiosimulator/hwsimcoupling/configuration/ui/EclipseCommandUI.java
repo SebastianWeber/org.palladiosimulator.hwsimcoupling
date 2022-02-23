@@ -1,15 +1,16 @@
 package org.palladiosimulator.hwsimcoupling.configuration.ui;
 
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 public abstract class EclipseCommandUI {
 	
-	protected Shell shell;
+	protected Composite parent;
 	
-	public EclipseCommandUI(Shell shell) {
-		this.shell = shell;
+	public EclipseCommandUI(Composite parent) {
+		this.parent = parent;
 	}
-	
-	public abstract void createUI();
+		
+	public abstract Control createUI();
 	
 }

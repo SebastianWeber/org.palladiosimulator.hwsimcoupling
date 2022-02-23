@@ -19,7 +19,7 @@ public class ProfileCache {
 		return INSTANCE;
 	}
 	
-	private Map<String, Map<String, Serializable>> profiles = PersistenceManager.loadProfiles();	
+	private Map<String, Map<String, String>> profiles = PersistenceManager.loadProfiles();	
 	
 	public void saveProfiles() {
 		PersistenceManager.saveProfiles(profiles);
@@ -29,11 +29,11 @@ public class ProfileCache {
 		profiles.clear();
 	}
 	
-	public Map<String, Map<String, Serializable>> getProfiles() {
+	public Map<String, Map<String, String>> getProfiles() {
 		return profiles;
 	}
 	
-	public void addProfile(String key, Map<String, Serializable> value) {
+	public void addProfile(String key, Map<String, String> value) {
 		profiles.put(key, value);
 		saveProfiles();
 	}
@@ -59,7 +59,7 @@ public class ProfileCache {
 		return map;
 	}
 	
-	public Map<String, Serializable> getParameterMap(String profile) {
+	public Map<String, String> getParameterMap(String profile) {
 		if (profiles.get(profile) != null) {
 			return profiles.get(profile);
 		}
@@ -67,7 +67,7 @@ public class ProfileCache {
 	}
 	
 	public String getProfile(String containerID) {
-		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
+		for (Entry<String, Map<String, String>> profile : profiles.entrySet()) {
 			if (profile.getValue().get(Parameter.CONTAINERID.getKeyword()).equals(containerID)) {
 				return profile.getKey();
 			}

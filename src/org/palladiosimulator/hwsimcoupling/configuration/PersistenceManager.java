@@ -1,6 +1,5 @@
 package org.palladiosimulator.hwsimcoupling.configuration;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +14,7 @@ public class PersistenceManager {
 	public static final String PROFILENODEID = "profiles";
 	public static final String DEMANDCACHENODEID = "demands";
 
-	public static void saveProfiles(Map<String, Map<String, Serializable>> profiles) {
+	public static void saveProfiles(Map<String, Map<String, String>> profiles) {
 		Preferences preferences = InstanceScope.INSTANCE.getNode(PREFERENCESID).node(PROFILENODEID);
 		try {
 			for (String children : preferences.childrenNames()) {
@@ -24,10 +23,10 @@ public class PersistenceManager {
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
-		for (Entry<String, Map<String, Serializable>> profile : profiles.entrySet()) {
+		for (Entry<String, Map<String, String>> profile : profiles.entrySet()) {
 			Preferences node = preferences.node(profile.getKey());
-			for (Entry<String, Serializable> parameter : profile.getValue().entrySet()) {
-				node.put(parameter.getKey(), (String) parameter.getValue());
+			for (Entry<String, String> parameter : profile.getValue().entrySet()) {
+				node.put(parameter.getKey(), parameter.getValue());
 			}
 		}
 		try {
@@ -37,9 +36,9 @@ public class PersistenceManager {
 		}
 	}
 	
-	public static Map<String, Map<String, Serializable>> loadProfiles() {
+	public static Map<String, Map<String, String>> loadProfiles() {
 		Preferences preferences = InstanceScope.INSTANCE.getNode(PREFERENCESID).node(PROFILENODEID);
-		Map<String, Map<String, Serializable>> profiles = new HashMap<String, Map<String, Serializable>>();
+		Map<String, Map<String, String>> profiles = new HashMap<String, Map<String, String>>();
 		String[] profileKeys = null;
 		try {
 			profileKeys = preferences.childrenNames();
@@ -50,7 +49,7 @@ public class PersistenceManager {
 			profileKeys = new String[] {"default"};
 		}
 		for (String profile : profileKeys) {
-			Map<String, Serializable> parameters = new HashMap<String, Serializable>();
+			Map<String, String> parameters = new HashMap<String, String>();
 			profiles.put(profile, parameters);
 			Preferences node = preferences.node(profile);
 			String[] keys = new String[0];
