@@ -84,24 +84,24 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.palladiosimulator.hwsimcoupling.hwsimPage"
-            class="org.palladiosimulator.hwsimcoupling.ProfileManagerPage"
+            class="org.palladiosimulator.hwsimcoupling.configuration.ui.preferences.ProfileManagerPage"
             id="org.palladiosimulator.hwsimcoupling.profileManagerPage"
             name="Profile Manager">
       </page>
       <page
             category="org.palladiosimulator.hwsimcoupling.hwsimPage"
-            class="org.palladiosimulator.hwsimcoupling.AvailableExtensionPage"
+            class="org.palladiosimulator.hwsimcoupling.configuration.ui.preferences.AvailableExtensionPage"
             id="org.palladiosimulator.hwsimcoupling.availableExtensionPage"
             name="Available HWSim Extensions">
       </page>
       <page
             category="org.palladiosimulator.hwsimcoupling.hwsimPage"
-            class="org.palladiosimulator.hwsimcoupling.cachedDemandsPage"
+            class="org.palladiosimulator.hwsimcoupling.configuration.ui.preferences.CachedDemandsPage"
             id="org.palladiosimulator.hwsimcoupling.cachedDemandsPage"
             name="Cached Demands">
       </page>
       <page
-            class="org.palladiosimulator.hwsimcoupling.HWSimPage"
+            class="org.palladiosimulator.hwsimcoupling.configuration.ui.preferences.HWSimPage"
             id="org.palladiosimulator.hwsimcoupling.hwsimPage"
             name="HWSim Configuration">
       </page>

@@ -1,6 +1,5 @@
 package org.palladiosimulator.hwsimcoupling.configuration.ui;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TabFolder;
@@ -72,6 +72,10 @@ public class UIUtility {
 	
 	public static void setMenuItemSelectionListener(MenuItem menuItem, SelectionListener selectionListener) {
 		menuItem.addSelectionListener(selectionListener);
+	}
+	
+	public static void setMenuItemListener(MenuItem menuItem, int type, Listener listener) {
+		menuItem.addListener(type, listener);
 	}
 	
 	public static Composite createCompositeWithLayout(Composite parent, int style, int numColumns) {

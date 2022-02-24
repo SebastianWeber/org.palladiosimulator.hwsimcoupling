@@ -1,4 +1,4 @@
-package org.palladiosimulator.hwsimcoupling;
+package org.palladiosimulator.hwsimcoupling.configuration.ui.preferences;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -6,19 +6,19 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.palladiosimulator.hwsimcoupling.configuration.ui.DemandCacheUI;
+import org.palladiosimulator.hwsimcoupling.configuration.ui.ProfileConfigurationUI;
 
-public class cachedDemandsPage extends PreferencePage implements IWorkbenchPreferencePage {
-
-	public cachedDemandsPage() {
+public class ProfileManagerPage extends PreferencePage implements IWorkbenchPreferencePage {
+	
+	public ProfileManagerPage() {
 		super();
 	}
 
-	public cachedDemandsPage(String title) {
+	public ProfileManagerPage(String title) {
 		super(title);
 	}
 
-	public cachedDemandsPage(String title, ImageDescriptor image) {
+	public ProfileManagerPage(String title, ImageDescriptor image) {
 		super(title, image);
 	}
 
@@ -29,7 +29,7 @@ public class cachedDemandsPage extends PreferencePage implements IWorkbenchPrefe
 
 	@Override
 	protected Control createContents(Composite parent) {
-		return new DemandCacheUI(parent).createUI();
+		return new ProfileConfigurationUI(parent).createUI();
 	}
 
 }

@@ -8,29 +8,25 @@ import java.util.Map.Entry;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
 import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 
 public class ProfileConfigurationUI extends EclipseCommandUI {
 	
 	private List<TabItemWithParameterList> tabItemsWithParameterList;
+	private TabFolder tabFolder;
 	private ProfileCache profileCache;
 	
 	public ProfileConfigurationUI(Composite parent) {
@@ -39,8 +35,22 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		this.profileCache = ProfileCache.getInstance();
 	}
 	
-	private void addTab(TabFolder tabFolder) {
+	private void addTab() {
 		this.tabItemsWithParameterList.add(new TabItemWithParameterList(tabFolder, "", new HashMap<String, String>()));
+	}
+	
+	private void deleteCurrentlySelectedTab() {
+		TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
+		int indexToRemove = -1;
+		for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
+			if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
+				indexToRemove = i;
+			}
+		}
+		if (indexToRemove != -1) {
+			tabItemsWithParameterList.remove(indexToRemove);
+		}
+		tabItem.dispose();
 	}
 	
 	private void save(TabFolder tabFolder) {
@@ -53,22 +63,14 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 	
 	@Override
 	public Control createUI() {
-		TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
-		Map<String, Map<String, String>> profiles = PersistenceManager.loadProfiles();
+		tabFolder = new TabFolder(parent, SWT.NONE);
+		Map<String, Map<String, String>> profiles = profileCache.getProfiles();
 		for (Entry<String, Map<String, String>> profile : profiles.entrySet()) {
 			TabItemWithParameterList tabItem = new TabItemWithParameterList(tabFolder, profile.getKey(), profile.getValue());
 			this.tabItemsWithParameterList.add(tabItem);
 		}
 		
-	    Button saveButton = new Button(parent, SWT.NONE);
-	    saveButton.setText("Save");
-	    saveButton.addSelectionListener(new DefaultSelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				save(tabFolder);
-			}
-		});
+	    Button saveButton = UIUtility.createButton(parent, SWT.NONE, "Save", new SaveSelectionListener());
 	    
 	    GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
         gridData.horizontalSpan = 4;
@@ -76,29 +78,34 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		
 		Menu menu = new Menu (parent);
 		tabFolder.setMenu (menu);
-		MenuItem itemDel = new MenuItem (menu, SWT.PUSH);
-		itemDel.setText ("Delete Profile");
-		itemDel.addListener (SWT.Selection, new Listener() {
-			
-			@Override
-			public void handleEvent(Event event) {
-				TabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
-				int indexToRemove = -1;
-				for (int i = 0; i < tabItemsWithParameterList.size(); i++) {
-					if (tabItemsWithParameterList.get(i).equalsTabItem(tabItem)) {
-						indexToRemove = i;
-					}
-				}
-				if (indexToRemove != -1) {
-					tabItemsWithParameterList.remove(indexToRemove);
-				}
-				tabItem.dispose();
-			}
-		});
-		MenuItem itemAdd = new MenuItem (menu, SWT.PUSH);
-		itemAdd.setText ("Add Profile");
-		itemAdd.addListener (SWT.Selection, event -> addTab(tabFolder));
+		MenuItem itemDel = UIUtility.addMenuItem(menu, "Delete Profile");
+		UIUtility.setMenuItemListener(itemDel, SWT.Selection, new DeleteTabItemListener());
+
+		MenuItem itemAdd = UIUtility.addMenuItem(menu, "Add Profile");
+		UIUtility.setMenuItemListener(itemAdd, SWT.Selection, new AddTabItemListener());
+
 		return tabFolder;
+	}
+	
+	private class SaveSelectionListener extends DefaultSelectionListener {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			save(tabFolder);
+		}
+	}
+	
+	private class DeleteTabItemListener implements Listener {
+		@Override
+		public void handleEvent(Event event) {
+			deleteCurrentlySelectedTab();
+		}
+	}
+	
+	private class AddTabItemListener implements Listener {
+		@Override
+		public void handleEvent(Event event) {
+			addTab();
+		}
 	}
 	
 	private class TabItemWithParameterList {
@@ -222,7 +229,6 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		}
 		
 		private class AddSelectionListener extends DefaultSelectionListener {
-			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (editingMode) {
@@ -234,7 +240,6 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		}
 		
 		private class CancelSelectionListener extends DefaultSelectionListener {
-			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (editingMode) {
@@ -244,7 +249,6 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
 		}
 		
 		private class DeleteSelectionListener extends DefaultSelectionListener {
-			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				table.remove(table.getSelectionIndices());
