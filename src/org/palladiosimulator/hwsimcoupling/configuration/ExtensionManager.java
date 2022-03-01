@@ -40,7 +40,7 @@ public class ExtensionManager {
 	}
 	
 	public CommandHandler getCommandHandler(Map<String, Serializable> parameterMap) {
-		String profile = MapHelper.get_value_from_map(parameterMap, Parameter.HWSIM.getKeyword());
+		String profile = MapHelper.get_value_from_map(parameterMap, Parameter.PROFILE.getKeyword());
 		if (profile == null) {
 			String containerID = MapHelper.get_required_value_from_map(parameterMap, Parameter.CONTAINERID.getKeyword());
 			profile = profileCache.getProfile(containerID);

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
@@ -20,6 +19,9 @@ import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache;
 import org.palladiosimulator.hwsimcoupling.util.FileManager;
 import org.palladiosimulator.hwsimcoupling.util.MapHelper;
+
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 
 public class DemandCacheImpl implements DemandCache{
 	
@@ -101,11 +103,9 @@ public class DemandCacheImpl implements DemandCache{
 	}
 	
 	private double get(String demands, RESOURCE resource) {
-		for (String demand : demands.split(";")) {
+		for (String demand : demands.split("&")) {
 			if (demand.strip().startsWith(resource.toString())) {
-				String[] demandArray = demand.strip().replace(resource.toString(), "").strip().split(",");
-				int randomIndex = ThreadLocalRandom.current().nextInt(0, demandArray.length);
-				return Double.parseDouble(demandArray[randomIndex].strip());
+				return NumberConverter.toDouble(StackContext.evaluateStatic(demand.strip().replace(resource.toString(), "").strip(), Double.class));
 			}
 		}
 		throw new DemandCalculationFailureException("Failed to evaluate demand.");
@@ -126,6 +126,5 @@ public class DemandCacheImpl implements DemandCache{
 		
 		return demandExtractor.get_demand();
 	}
-
 	
 }

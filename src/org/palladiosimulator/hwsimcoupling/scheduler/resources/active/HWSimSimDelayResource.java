@@ -12,8 +12,9 @@ import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.scheduler.resources.active.IResourceTableManager;
 import de.uka.ipd.sdq.scheduler.resources.active.SimDelayResource;
+import de.uka.ipd.sdq.simucomframework.model.SimuComModel;
 
-public class HWSimSimDelayResource extends SimDelayResource {
+public class HWSimSimDelayResource extends SimDelayResource implements ResourceModelHelper {
 	
 	private static DemandCacheImpl demandCache;
 	
@@ -26,6 +27,7 @@ public class HWSimSimDelayResource extends SimDelayResource {
 	@Override
 	protected void doProcessing(ISchedulableProcess process, int resourceServiceID,
             Map<String, Serializable> parameterMap, double demand) {
+		addCurrentContainerID((SimuComModel)this.getModel(), parameterMap);
 		CommandHandler commandHandler = ExtensionManager.getINSTANCE().getCommandHandler(parameterMap);
 		this.doProcessing(process, resourceServiceID, demandCache.get(parameterMap, RESOURCE.CPU, commandHandler));
 
