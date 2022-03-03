@@ -17,7 +17,15 @@ public class FileManagerImpl implements FileManager {
 	public FileManagerImpl() {
 	}
 	
-	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair, CommandHandler commandHandler) {
+	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap, CommandHandler commandHandler) {
+		Map<String, Serializable> stripped_parameter_map = new HashMap<String, Serializable>();
+		for (Entry<String,Serializable> pair : parameterMap.entrySet()){
+			stripped_parameter_map.put(pair.getKey(), copy_file(parameterMap, pair, commandHandler));
+	    }
+		return stripped_parameter_map;
+	}
+	
+	private String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair, CommandHandler commandHandler) {
 		String paths = pair.getValue().toString();
 		String stripped_paths = "";
 		for (String path : paths.split(" ")) {
@@ -30,14 +38,6 @@ public class FileManagerImpl implements FileManager {
 			}
 		}
 		return stripped_paths;
-	}
-	
-	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap, CommandHandler commandHandler) {
-		Map<String, Serializable> stripped_parameter_map = new HashMap<String, Serializable>();
-		for (Entry<String,Serializable> pair : parameterMap.entrySet()){
-			stripped_parameter_map.put(pair.getKey(), copy_file(parameterMap, pair, commandHandler));
-	    }
-		return stripped_parameter_map;
 	}
 	
 	private String strip_path(String path) {

@@ -6,6 +6,7 @@ public enum Parameter {
 	CONTAINERID("containerID"),
 	CLASS("class"),
 	NAME("name"),
+	PROCESSINGRATE("processingrate"),
 	PROFILE("profile");
 
 	private String keyword;

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.palladiosimulator.hwsimcoupling.configuration.ExtensionManager;
+import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache.RESOURCE;
 import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
@@ -21,7 +22,7 @@ public class HWSimSimProcessorSharingResource extends SimProcessorSharingResourc
 	public HWSimSimProcessorSharingResource(SchedulerModel model, String name, String id, long capacity,
 			IResourceTableManager resourceTableManager) {
 		super(model, name, id, capacity, resourceTableManager);
-		demandCache = DemandCacheImpl.getInstance();
+		demandCache = DemandCacheImpl.getInstance(ProfileCache.getInstance());
 	}
 	
 	@Override

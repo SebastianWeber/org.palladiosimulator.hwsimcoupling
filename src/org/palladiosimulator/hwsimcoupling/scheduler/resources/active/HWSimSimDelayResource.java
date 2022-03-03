@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.palladiosimulator.hwsimcoupling.configuration.ExtensionManager;
+import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache.RESOURCE;
 import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
@@ -21,7 +22,7 @@ public class HWSimSimDelayResource extends SimDelayResource implements ResourceM
 	public HWSimSimDelayResource(SchedulerModel model, String name, String id,
 			IResourceTableManager resourceTableManager) {
 		super(model, name, id, resourceTableManager);
-		demandCache = DemandCacheImpl.getInstance();
+		demandCache = DemandCacheImpl.getInstance(ProfileCache.getInstance());
 	}
 	
 	@Override

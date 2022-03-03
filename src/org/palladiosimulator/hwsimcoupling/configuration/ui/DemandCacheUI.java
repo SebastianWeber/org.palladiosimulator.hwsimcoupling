@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
+import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 import org.palladiosimulator.hwsimcoupling.util.impl.DemandCacheImpl;
 
 public class DemandCacheUI extends EclipseCommandUI {
@@ -18,7 +19,7 @@ public class DemandCacheUI extends EclipseCommandUI {
 
 	public DemandCacheUI(Composite parent) {
 		super(parent);
-		demandCacheImpl = DemandCacheImpl.getInstance();
+		demandCacheImpl = DemandCacheImpl.getInstance(ProfileCache.getInstance());
 		
 	}
 

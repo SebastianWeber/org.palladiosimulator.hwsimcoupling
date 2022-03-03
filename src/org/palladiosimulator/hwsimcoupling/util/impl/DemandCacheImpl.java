@@ -3,12 +3,14 @@ package org.palladiosimulator.hwsimcoupling.util.impl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.hwsimcoupling.commands.ExtractionCommand;
 import org.palladiosimulator.hwsimcoupling.commands.SimulationCommand;
+import org.palladiosimulator.hwsimcoupling.configuration.Parameter;
 import org.palladiosimulator.hwsimcoupling.configuration.PersistenceManager;
 import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
@@ -30,9 +32,9 @@ public class DemandCacheImpl implements DemandCache{
 	
 	private static DemandCacheImpl INSTANCE;
 	
-	public static DemandCacheImpl getInstance() {
+	public static DemandCacheImpl getInstance(ProfileCache profileCache) {
 		if (INSTANCE == null) {
-			INSTANCE = new DemandCacheImpl();
+			INSTANCE = new DemandCacheImpl(profileCache);
 		}
 		return INSTANCE;
 	}
@@ -41,10 +43,10 @@ public class DemandCacheImpl implements DemandCache{
 	private FileManager fileManager;
 	private ProfileCache profileCache;
 	
-	private DemandCacheImpl() {
+	private DemandCacheImpl(ProfileCache profileCache) {
 		this.demands = PersistenceManager.loadDemands();
 		this.fileManager = new FileManagerImpl();
-		this.profileCache = ProfileCache.getInstance();
+		this.profileCache = profileCache;
 	}
 	
 	public void saveDemands() {
@@ -65,8 +67,13 @@ public class DemandCacheImpl implements DemandCache{
 		saveDemands();
 	}
 	
+	public void clearCache() {
+		this.demands = new HashMap<String, String>();
+		saveDemands();
+	}
+	
 	public double get(Map<String, Serializable> parameterMap, RESOURCE resource, CommandHandler commandHandler) {
-		String profile = MapHelper.get_value_from_map(parameterMap, "hwsim");
+		String profile = MapHelper.get_value_from_map(parameterMap, Parameter.PROFILE.getKeyword());
 		if (profile == null) {
 			String containerID = MapHelper.get_required_value_from_map(parameterMap, "containerID");
 			profile = profileCache.getProfile(containerID);
@@ -76,9 +83,9 @@ public class DemandCacheImpl implements DemandCache{
                 LOGGER.warn(warning);
             }
 		}
-		parameterMap = profileCache.mergeParameterMapWithProfile(parameterMap, profile);
+		parameterMap = profileCache.mergeParameterMapWithProfile(parameterMap, profile);		
 		String key = MapHelper.get_map_as_one_string(parameterMap);
-		long processingrate = Long.parseLong(MapHelper.get_required_value_from_map(parameterMap, "processingrate"));
+		long processingrate = Long.parseLong(MapHelper.get_required_value_from_map(parameterMap, Parameter.PROCESSINGRATE.getKeyword()));
 		
 		if(!demands.containsKey(key)) {
 			try {
@@ -102,10 +109,14 @@ public class DemandCacheImpl implements DemandCache{
 		}
 	}
 	
+	private double evaluateDemand(String demand) {
+		return NumberConverter.toDouble(StackContext.evaluateStatic(demand, Double.class));
+	}
+	
 	private double get(String demands, RESOURCE resource) {
 		for (String demand : demands.split("&")) {
 			if (demand.strip().startsWith(resource.toString())) {
-				return NumberConverter.toDouble(StackContext.evaluateStatic(demand.strip().replace(resource.toString(), "").strip(), Double.class));
+				return evaluateDemand(demand.strip().replace(resource.toString(), "").strip());
 			}
 		}
 		throw new DemandCalculationFailureException("Failed to evaluate demand.");

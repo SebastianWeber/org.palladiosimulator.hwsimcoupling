@@ -2,7 +2,6 @@ package org.palladiosimulator.hwsimcoupling.util;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author Sebastian
@@ -10,8 +9,6 @@ import java.util.Map.Entry;
  */
 public interface FileManager {
 
-	public String copy_file(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair, CommandHandler commandHandler);
-	
 	public Map<String, Serializable> copy_files(Map<String, Serializable> parameterMap, CommandHandler commandHandler);
 	
 	/**
