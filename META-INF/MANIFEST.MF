@@ -6,14 +6,9 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.hwsimcoupling
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.hwsimcoupling.commands,
- org.palladiosimulator.hwsimcoupling.configuration,
- org.palladiosimulator.hwsimcoupling.configuration.ui,
  org.palladiosimulator.hwsimcoupling.consumers,
- org.palladiosimulator.hwsimcoupling.exceptions,
- org.palladiosimulator.hwsimcoupling.scheduler,
- org.palladiosimulator.hwsimcoupling.scheduler.resources.active,
  org.palladiosimulator.hwsimcoupling.util,
- org.palladiosimulator.hwsimcoupling.util.impl
+ org.palladiosimulator.hwsimcoupling.exceptions
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime;bundle-version="3.24.0",
  org.eclipse.ui,
