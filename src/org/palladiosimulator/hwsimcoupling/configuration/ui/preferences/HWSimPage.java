@@ -9,26 +9,26 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class HWSimPage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	public HWSimPage() {
-		super();
-	}
+    public HWSimPage() {
+        super();
+    }
 
-	public HWSimPage(String title) {
-		super(title);
-	}
+    public HWSimPage(String title) {
+        super(title);
+    }
 
-	public HWSimPage(String title, ImageDescriptor image) {
-		super(title, image);
-	}
+    public HWSimPage(String title, ImageDescriptor image) {
+        super(title, image);
+    }
 
-	@Override
-	public void init(IWorkbench workbench) {
-		noDefaultAndApplyButton();
-	}
+    @Override
+    public void init(IWorkbench workbench) {
+        noDefaultAndApplyButton();
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
-		return null;
-	}
+    @Override
+    protected Control createContents(Composite parent) {
+        return null;
+    }
 
 }

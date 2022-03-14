@@ -9,27 +9,27 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.palladiosimulator.hwsimcoupling.configuration.ui.ProfileConfigurationUI;
 
 public class ProfileManagerPage extends PreferencePage implements IWorkbenchPreferencePage {
-	
-	public ProfileManagerPage() {
-		super();
-	}
 
-	public ProfileManagerPage(String title) {
-		super(title);
-	}
+    public ProfileManagerPage() {
+        super();
+    }
 
-	public ProfileManagerPage(String title, ImageDescriptor image) {
-		super(title, image);
-	}
+    public ProfileManagerPage(String title) {
+        super(title);
+    }
 
-	@Override
-	public void init(IWorkbench workbench) {
-		noDefaultAndApplyButton();
-	}
+    public ProfileManagerPage(String title, ImageDescriptor image) {
+        super(title, image);
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
-		return new ProfileConfigurationUI(parent).createUI();
-	}
+    @Override
+    public void init(IWorkbench workbench) {
+        noDefaultAndApplyButton();
+    }
+
+    @Override
+    protected Control createContents(Composite parent) {
+        return new ProfileConfigurationUI(parent).createUI();
+    }
 
 }

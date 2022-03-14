@@ -9,15 +9,15 @@ import de.uka.ipd.sdq.scheduler.resources.active.IResourceTableManager;
 
 public class HWSimFCFSSchedulerExtensionFactory implements SchedulerExtensionFactory {
 
-	public HWSimFCFSSchedulerExtensionFactory() {
-		
-	}
-	
-	@Override
-	public IActiveResource getExtensionScheduler(SchedulerModel model, String resourceName, String resourceId,
-			long numberOfCores, IResourceTableManager resourceTableManager) {
+    public HWSimFCFSSchedulerExtensionFactory() {
 
-		return new HWSimSimFCFSResource(model, resourceId, resourceId, numberOfCores, resourceTableManager);
-	}
+    }
+
+    @Override
+    public IActiveResource getExtensionScheduler(SchedulerModel model, String resourceName, String resourceId,
+            long numberOfCores, IResourceTableManager resourceTableManager) {
+
+        return new HWSimSimFCFSResource(model, resourceId, resourceId, numberOfCores, resourceTableManager);
+    }
 
 }

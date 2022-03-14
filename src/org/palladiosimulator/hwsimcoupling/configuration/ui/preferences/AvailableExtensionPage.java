@@ -10,26 +10,26 @@ import org.palladiosimulator.hwsimcoupling.configuration.ui.AvailableExtensionUI
 
 public class AvailableExtensionPage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	public AvailableExtensionPage() {
-		super();
-	}
+    public AvailableExtensionPage() {
+        super();
+    }
 
-	public AvailableExtensionPage(String title) {
-		super(title);
-	}
+    public AvailableExtensionPage(String title) {
+        super(title);
+    }
 
-	public AvailableExtensionPage(String title, ImageDescriptor image) {
-		super(title, image);
-	}
+    public AvailableExtensionPage(String title, ImageDescriptor image) {
+        super(title, image);
+    }
 
-	@Override
-	public void init(IWorkbench workbench) {
-		noDefaultAndApplyButton();
-	}
+    @Override
+    public void init(IWorkbench workbench) {
+        noDefaultAndApplyButton();
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
-		return new AvailableExtensionUI(parent).createUI();
-	}
+    @Override
+    protected Control createContents(Composite parent) {
+        return new AvailableExtensionUI(parent).createUI();
+    }
 
 }

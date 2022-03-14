@@ -10,26 +10,26 @@ import org.palladiosimulator.hwsimcoupling.configuration.ui.DemandCacheUI;
 
 public class CachedDemandsPage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	public CachedDemandsPage() {
-		super();
-	}
+    public CachedDemandsPage() {
+        super();
+    }
 
-	public CachedDemandsPage(String title) {
-		super(title);
-	}
+    public CachedDemandsPage(String title) {
+        super(title);
+    }
 
-	public CachedDemandsPage(String title, ImageDescriptor image) {
-		super(title, image);
-	}
+    public CachedDemandsPage(String title, ImageDescriptor image) {
+        super(title, image);
+    }
 
-	@Override
-	public void init(IWorkbench workbench) {
-		noDefaultAndApplyButton();
-	}
+    @Override
+    public void init(IWorkbench workbench) {
+        noDefaultAndApplyButton();
+    }
 
-	@Override
-	protected Control createContents(Composite parent) {
-		return new DemandCacheUI(parent).createUI();
-	}
+    @Override
+    protected Control createContents(Composite parent) {
+        return new DemandCacheUI(parent).createUI();
+    }
 
 }

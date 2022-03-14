@@ -9,14 +9,14 @@ import de.uka.ipd.sdq.scheduler.resources.active.IResourceTableManager;
 
 public class HWSimDelaySchedulerExtensionFactory implements SchedulerExtensionFactory {
 
-	public HWSimDelaySchedulerExtensionFactory() {
-		
-	}
-	
-	@Override
-	public IActiveResource getExtensionScheduler(SchedulerModel model, String resourceName, String resourceId,
-			long numberOfCores, IResourceTableManager resourceTableManager) {
-		return new HWSimSimDelayResource(model, resourceId, resourceId, resourceTableManager);
-	}
+    public HWSimDelaySchedulerExtensionFactory() {
+
+    }
+
+    @Override
+    public IActiveResource getExtensionScheduler(SchedulerModel model, String resourceName, String resourceId,
+            long numberOfCores, IResourceTableManager resourceTableManager) {
+        return new HWSimSimDelayResource(model, resourceId, resourceId, resourceTableManager);
+    }
 
 }

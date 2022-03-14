@@ -16,21 +16,22 @@ import de.uka.ipd.sdq.scheduler.resources.active.SimProcessorSharingResource;
 import de.uka.ipd.sdq.simucomframework.model.SimuComModel;
 
 public class HWSimSimProcessorSharingResource extends SimProcessorSharingResource implements ResourceModelHelper {
-	
-	private static DemandCacheImpl demandCache;
-	
-	public HWSimSimProcessorSharingResource(SchedulerModel model, String name, String id, long capacity,
-			IResourceTableManager resourceTableManager) {
-		super(model, name, id, capacity, resourceTableManager);
-		demandCache = DemandCacheImpl.getInstance(ProfileCache.getInstance());
-	}
-	
-	@Override
-	protected void doProcessing(ISchedulableProcess process, int resourceServiceID,
+
+    private static DemandCacheImpl demandCache;
+
+    public HWSimSimProcessorSharingResource(SchedulerModel model, String name, String id, long capacity,
+            IResourceTableManager resourceTableManager) {
+        super(model, name, id, capacity, resourceTableManager);
+        demandCache = DemandCacheImpl.getInstance(ProfileCache.getInstance());
+    }
+
+    @Override
+    protected void doProcessing(ISchedulableProcess process, int resourceServiceID,
             Map<String, Serializable> parameterMap, double demand) {
-		addCurrentContainerID((SimuComModel)this.getModel(), parameterMap);
-		CommandHandler commandHandler = ExtensionManager.getINSTANCE().getCommandHandler(parameterMap);
-		this.doProcessing(process, resourceServiceID, demandCache.get(parameterMap, RESOURCE.CPU, commandHandler));
+        addCurrentContainerID((SimuComModel) this.getModel(), parameterMap);
+        CommandHandler commandHandler = ExtensionManager.getINSTANCE()
+            .getCommandHandler(parameterMap);
+        this.doProcessing(process, resourceServiceID, demandCache.get(parameterMap, RESOURCE.CPU, commandHandler));
 
     }
 }

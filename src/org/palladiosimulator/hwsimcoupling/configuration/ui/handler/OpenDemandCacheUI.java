@@ -7,20 +7,20 @@ import org.palladiosimulator.hwsimcoupling.configuration.ui.DemandCacheUI;
 import org.palladiosimulator.hwsimcoupling.configuration.ui.EclipseCommandUI;
 
 public class OpenDemandCacheUI extends EclipseCommandHandler {
-	
-	@Override
-	protected EclipseCommandUI getEclipseCommandUI(Shell shell) {
-		return new DemandCacheUI(shell);
-	}
 
-	@Override
-	protected String getShellTitle() {
-		return "Cached demands";
-	}
+    @Override
+    protected EclipseCommandUI getEclipseCommandUI(Shell shell) {
+        return new DemandCacheUI(shell);
+    }
 
-	@Override
-	protected Layout getShellLayout() {
-		return new GridLayout();
-	}
+    @Override
+    protected String getShellTitle() {
+        return "Cached demands";
+    }
+
+    @Override
+    protected Layout getShellLayout() {
+        return new GridLayout();
+    }
 
 }

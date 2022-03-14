@@ -8,20 +8,19 @@ import org.palladiosimulator.hwsimcoupling.configuration.ui.EclipseCommandUI;
 
 public class OpenProfileConfigrationUI extends EclipseCommandHandler {
 
-	@Override
-	protected EclipseCommandUI getEclipseCommandUI(Shell shell) {
-		return new ProfileConfigurationUI(shell);
-	}
+    @Override
+    protected EclipseCommandUI getEclipseCommandUI(Shell shell) {
+        return new ProfileConfigurationUI(shell);
+    }
 
-	@Override
-	protected String getShellTitle() {
-		return "HWSimCoupling Profile Manager";
-	}
+    @Override
+    protected String getShellTitle() {
+        return "HWSimCoupling Profile Manager";
+    }
 
-	@Override
-	protected Layout getShellLayout() {
-		return new GridLayout();
-	}
-
+    @Override
+    protected Layout getShellLayout() {
+        return new GridLayout();
+    }
 
 }
