@@ -6,20 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.palladiosimulator.hwsimcoupling.exceptions.MissingParameterException;
-import org.palladiosimulator.hwsimcoupling.util.FileManager.LOCATIONS;
 
 public class MapHelper {
 
     /**
      * Parameters with this key will be excluded in {@link MapHelper#getMapAsOneString(Map)}
      */
-    public static final String[] EXCLUDEDKEYS = new String[] { "processingrate" };
+    public static final String[] EXCLUDEDKEYS = new String[] { "processingrate", "profile" };
     /**
      * The Value of parameters will be stripped from these prefixes in
      * {@link MapHelper#getMapAsOneString(Map)}
      */
-    public static final String[] PREFIXESTOREMOVE = new String[] { LOCATIONS.ABSOLUTE.toString(),
-            LOCATIONS.LOCAL.toString() };
+    public static final String[] PREFIXESTOREMOVE = new String[] { Locations.ABSOLUTE.toString(),
+            Locations.LOCAL.toString() };
 
     public static final String PAIRSEPARATOR = ":";
     public static final String PAIRSSEPARATOR = "|";

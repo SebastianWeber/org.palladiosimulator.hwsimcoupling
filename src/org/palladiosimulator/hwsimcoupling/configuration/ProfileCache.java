@@ -5,19 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.palladiosimulator.hwsimcoupling.CacheInitializer;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 
 public class ProfileCache {
-
-    private static ProfileCache instance;
-
-    public static ProfileCache getInstance() {
-        if (instance == null) {
-            instance = new ProfileCache();
-        }
-        return instance;
-    }
 
     private Map<String, Map<String, String>> profiles = PersistenceManager.loadProfiles();
 
@@ -45,7 +37,8 @@ public class ProfileCache {
 
     public Map<String, String> getRequiredParameters() {
         Map<String, String> requiredParameters = new HashMap<String, String>();
-        for (Entry<String, CommandHandler> entry : ExtensionManager.getINSTANCE()
+        for (Entry<String, CommandHandler> entry : CacheInitializer.getInstance()
+            .getExtensionCache()
             .getCommandHandlers()
             .entrySet()) {
             requiredParameters.put(entry.getKey(), entry.getValue()

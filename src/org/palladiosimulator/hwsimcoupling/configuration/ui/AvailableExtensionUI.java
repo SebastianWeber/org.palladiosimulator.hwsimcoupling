@@ -5,7 +5,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
-import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
+import org.palladiosimulator.hwsimcoupling.CacheInitializer;
 
 public class AvailableExtensionUI extends EclipseCommandUI {
 
@@ -22,7 +22,8 @@ public class AvailableExtensionUI extends EclipseCommandUI {
     private Control createTable() {
         Table table = UIUtility.createTable(parent, SWT.SINGLE | SWT.FULL_SELECTION);
         String[] titles = { "HWSim", "Parameters" };
-        Map<String, String> parameters = ProfileCache.getInstance()
+        Map<String, String> parameters = CacheInitializer.getInstance()
+            .getProfileCache()
             .getRequiredParameters();
         UIUtility.setTableData(table, titles, parameters);
         return parent;

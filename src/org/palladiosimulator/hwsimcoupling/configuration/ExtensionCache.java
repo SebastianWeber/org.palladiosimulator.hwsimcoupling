@@ -15,31 +15,20 @@ import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureEx
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.MapHelper;
 
-public final class ExtensionManager {
+public final class ExtensionCache {
 
-    private static ExtensionManager instance;
-
-    public static ExtensionManager getINSTANCE() {
-        if (instance == null) {
-            instance = new ExtensionManager();
-        }
-        return instance;
-    }
-
-    private ExtensionManager() {
-        commandHandlers = loadCommandHandlers();
-        profileCache = ProfileCache.getInstance();
+    public ExtensionCache() {
+        this.commandHandlers = loadCommandHandlers();
     }
 
     public static final String EXTENSIONPOINTID = "org.palladiosimulator.hwsimcoupling.hwsim";
     private Map<String, CommandHandler> commandHandlers;
-    private ProfileCache profileCache;
 
     public Map<String, CommandHandler> getCommandHandlers() {
         return commandHandlers;
     }
 
-    public CommandHandler getCommandHandler(Map<String, Serializable> parameterMap) {
+    public CommandHandler getCommandHandler(Map<String, Serializable> parameterMap, ProfileCache profileCache) {
         String profile = MapHelper.getValueFromMap(parameterMap, Parameter.PROFILE.getKeyword());
         if (profile == null) {
             String containerID = MapHelper.getRequiredValueFromMap(parameterMap, Parameter.CONTAINERID.getKeyword());
@@ -63,21 +52,21 @@ public final class ExtensionManager {
     }
 
     private Map<String, CommandHandler> loadCommandHandlers() {
-        Map<String, CommandHandler> commandHandlers = new HashMap<String, CommandHandler>();
+        Map<String, CommandHandler> commandHandlersTemp = new HashMap<String, CommandHandler>();
         for (IExtension extension : getExtensions()) {
             for (IConfigurationElement element : extension.getConfigurationElements()) {
                 Object o;
                 try {
                     o = element.createExecutableExtension(Parameter.CLASS.getKeyword());
                     if (o instanceof CommandHandler) {
-                        commandHandlers.put(element.getAttribute(Parameter.NAME.getKeyword()), (CommandHandler) o);
+                        commandHandlersTemp.put(element.getAttribute(Parameter.NAME.getKeyword()), (CommandHandler) o);
                     }
                 } catch (CoreException e) {
                     e.printStackTrace();
                 }
             }
         }
-        return commandHandlers;
+        return commandHandlersTemp;
     }
 
     private IExtension[] getExtensions() {

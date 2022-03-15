@@ -20,14 +20,21 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.palladiosimulator.hwsimcoupling.commands.CopyCommand;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
-import org.palladiosimulator.hwsimcoupling.util.FileManager;
+import org.palladiosimulator.hwsimcoupling.util.Locations;
 
-public class FileManagerImpl implements FileManager {
+public class FileManager {
 
-    public FileManagerImpl() {
-    }
-
-    public Map<String, Serializable> copyFiles(Map<String, Serializable> parameterMap, CommandHandler commandHandler) {
+    /**
+     * Copy files from the paramterMap with the
+     * {@link org.palladiosimulator.hwsimcoupling.commands.CopyCommand} from the
+     * {@link CommandHandler}
+     * 
+     * @param parameterMap
+     * @param commandHandler
+     * @return the paramterMap with adapted file paths
+     */
+    public static Map<String, Serializable> copyFiles(Map<String, Serializable> parameterMap,
+            CommandHandler commandHandler) {
         Map<String, Serializable> strippedParameterMap = new HashMap<String, Serializable>();
         for (Entry<String, Serializable> pair : parameterMap.entrySet()) {
             strippedParameterMap.put(pair.getKey(), copyFile(parameterMap, pair, commandHandler));
@@ -35,7 +42,15 @@ public class FileManagerImpl implements FileManager {
         return strippedParameterMap;
     }
 
-    public Map<String, String> getHashValuesFromFiles(Map<String, Serializable> parameterMap,
+    /**
+     * Compute or get the hash values from the files supposed to be copied
+     * 
+     * @param parameterMap
+     * @param hashValues
+     *            already computed hash values
+     * @return hash values from the files supposed to be copied
+     */
+    public static Map<String, String> getHashValuesFromFiles(Map<String, Serializable> parameterMap,
             Map<String, String> hashValues) {
         Map<String, String> newHashValues = new HashMap<String, String>();
         for (Entry<String, Serializable> pair : parameterMap.entrySet()) {
@@ -54,13 +69,13 @@ public class FileManagerImpl implements FileManager {
         return newHashValues;
     }
 
-    private String[] getKeyAndStrippedPath(String prefixedPath) {
+    private static String[] getKeyAndStrippedPath(String prefixedPath) {
         String name = "";
         String path = "";
-        if (prefixedPath.startsWith(LOCATIONS.ABSOLUTE.toString())) {
+        if (prefixedPath.startsWith(Locations.ABSOLUTE.toString())) {
             name = new File(stripPath(prefixedPath)).getName();
             path = stripPath(path);
-        } else if (prefixedPath.startsWith(LOCATIONS.LOCAL.toString())) {
+        } else if (prefixedPath.startsWith(Locations.LOCAL.toString())) {
             IResource resource = ResourcesPlugin.getWorkspace()
                 .getRoot()
                 .findMember(stripPath(prefixedPath));
@@ -73,15 +88,15 @@ public class FileManagerImpl implements FileManager {
         return new String[] { name + "MD5Hash", path };
     }
 
-    private String copyFile(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair,
+    private static String copyFile(Map<String, Serializable> parameterMap, Entry<String, Serializable> pair,
             CommandHandler commandHandler) {
         String paths = pair.getValue()
             .toString();
         String strippedPaths = "";
         for (String path : split(paths)) {
-            if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
+            if (path.startsWith(Locations.ABSOLUTE.toString())) {
                 strippedPaths += copyAbsolute(parameterMap, path, commandHandler);
-            } else if (path.startsWith(LOCATIONS.LOCAL.toString())) {
+            } else if (path.startsWith(Locations.LOCAL.toString())) {
                 strippedPaths += copyLocal(parameterMap, path, commandHandler);
             } else {
                 strippedPaths += path;
@@ -90,29 +105,30 @@ public class FileManagerImpl implements FileManager {
         return strippedPaths;
     }
 
-    private List<String> split(String parameters) {
+    private static List<String> split(String parameters) {
         List<String> parametersSplit = new ArrayList<String>();
         // Split at space but preserve strings with quotation marks
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*")
             .matcher(parameters);
-        while (m.find())
+        while (m.find()) {
             // Add strings to the list and remove surrounding quotation marks
             parametersSplit.add(m.group(1)
                 .replace("\"", ""));
+        }
         return parametersSplit;
     }
 
-    private String stripPath(String path) {
-        if (path.startsWith(LOCATIONS.LOCAL.toString())) {
-            return path.replaceFirst(LOCATIONS.LOCAL.toString(), "");
-        } else if (path.startsWith(LOCATIONS.ABSOLUTE.toString())) {
-            return path.replaceFirst(LOCATIONS.ABSOLUTE.toString(), "");
+    private static String stripPath(String path) {
+        if (path.startsWith(Locations.LOCAL.toString())) {
+            return path.replaceFirst(Locations.LOCAL.toString(), "");
+        } else if (path.startsWith(Locations.ABSOLUTE.toString())) {
+            return path.replaceFirst(Locations.ABSOLUTE.toString(), "");
         } else {
             return path;
         }
     }
 
-    private String hash(String path) {
+    private static String hash(String path) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             InputStream fis = new FileInputStream(path);
@@ -132,7 +148,8 @@ public class FileManagerImpl implements FileManager {
         }
     }
 
-    private String copyLocal(Map<String, Serializable> parameterMap, String path, CommandHandler commandHandler) {
+    private static String copyLocal(Map<String, Serializable> parameterMap, String path,
+            CommandHandler commandHandler) {
         try {
             IResource resource = ResourcesPlugin.getWorkspace()
                 .getRoot()
@@ -148,7 +165,8 @@ public class FileManagerImpl implements FileManager {
         }
     }
 
-    private String copyAbsolute(Map<String, Serializable> parameterMap, String path, CommandHandler commandHandler) {
+    private static String copyAbsolute(Map<String, Serializable> parameterMap, String path,
+            CommandHandler commandHandler) {
         try {
             CopyCommand copyCommand = commandHandler.getCopyCommand(parameterMap, stripPath(path));
             CommandExecutor.executeCommand(copyCommand, commandHandler.getOutputConsumer(),

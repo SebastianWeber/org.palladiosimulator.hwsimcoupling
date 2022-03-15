@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.palladiosimulator.hwsimcoupling.CacheInitializer;
 import org.palladiosimulator.hwsimcoupling.configuration.ProfileCache;
 
 public class ProfileConfigurationUI extends EclipseCommandUI {
@@ -32,7 +33,8 @@ public class ProfileConfigurationUI extends EclipseCommandUI {
     public ProfileConfigurationUI(Composite parent) {
         super(parent);
         this.tabItemsWithParameterList = new ArrayList<TabItemWithParameterList>();
-        this.profileCache = ProfileCache.getInstance();
+        this.profileCache = CacheInitializer.getInstance()
+            .getProfileCache();
     }
 
     private void addTab() {

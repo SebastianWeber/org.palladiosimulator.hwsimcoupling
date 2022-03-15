@@ -14,13 +14,25 @@ public interface DemandCache {
      */
     public double get(Map<String, Serializable> parameterMap, RESOURCE resource, CommandHandler commandHandler);
 
+    public void saveDemands();
+
+    public Map<String, Map<String, String>> getDemands();
+
+    public Map<String, String> getSerializedDemands();
+
+    public void addDemand(String key, String value);
+
+    public void removeDemand(String key);
+
+    public void clearCache();
+
     /**
      * @author Sebastian The demand cache stores demands for cpu and hdd in one string separated by
      *         a semicolon and prefixed by keywords available through {@link RESOURCE#toString()}
      */
     public enum RESOURCE {
 
-        CPU("CPU:"), HDD("HDD:");
+        CPU("CPU"), HDD("HDD");
 
         private final String keyword;
 
