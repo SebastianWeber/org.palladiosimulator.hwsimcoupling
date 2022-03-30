@@ -20,6 +20,7 @@ import org.palladiosimulator.hwsimcoupling.consumers.ErrorConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.OutputConsumer;
 import org.palladiosimulator.hwsimcoupling.consumers.VoidConsumer;
 import org.palladiosimulator.hwsimcoupling.exceptions.DemandCalculationFailureException;
+import org.palladiosimulator.hwsimcoupling.exceptions.MissingParameterException;
 import org.palladiosimulator.hwsimcoupling.util.CommandHandler;
 import org.palladiosimulator.hwsimcoupling.util.DemandCache;
 import org.palladiosimulator.hwsimcoupling.util.MapHelper;
@@ -43,7 +44,7 @@ public final class DemandCacheImpl implements DemandCache {
     }
 
     public void saveDemands() {
-        System.out.println("Executed");
+        LOGGER.warn("Demands saved");
         PersistenceManager.saveDemands(demands);
     }
 
@@ -131,10 +132,13 @@ public final class DemandCacheImpl implements DemandCache {
         SimulationCommand simulationCommand = commandHandler.getSimulationCommand(parameterMap);
         ExtractionCommand extractionCommand = commandHandler.getExtractionCommand(parameterMap);
 
-        // Exception catchen
-        CommandExecutor.executeCommand(simulationCommand, voidConsumer, errorDetector);
-        CommandExecutor.executeCommand(extractionCommand, demandExtractor, errorDetector);
-
+        try {
+            CommandExecutor.executeCommand(simulationCommand, voidConsumer, errorDetector);
+            CommandExecutor.executeCommand(extractionCommand, demandExtractor, errorDetector);
+        } catch (MissingParameterException | DemandCalculationFailureException e ) {
+            LOGGER.error(e.getMessage());
+            throw e;
+        } 
         return demandExtractor.getDemand();
     }
 

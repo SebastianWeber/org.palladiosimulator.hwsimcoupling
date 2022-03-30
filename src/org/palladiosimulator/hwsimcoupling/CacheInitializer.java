@@ -66,7 +66,7 @@ public class CacheInitializer extends AbstractUIPlugin {
             for (ILaunch launch : manager.getLaunches()) {
                 try {
                     if (launch.getLaunchConfiguration() == null) {
-                        return;
+                        continue;
                     }
                     if (launch.getLaunchConfiguration()
                         .getType()

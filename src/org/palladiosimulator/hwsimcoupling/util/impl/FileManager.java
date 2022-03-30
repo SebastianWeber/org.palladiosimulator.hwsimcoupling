@@ -101,8 +101,9 @@ public class FileManager {
             } else {
                 strippedPaths += path;
             }
+            strippedPaths += " ";
         }
-        return strippedPaths;
+        return strippedPaths.substring(0, strippedPaths.length() - 1);
     }
 
     private static List<String> split(String parameters) {
